@@ -1,7 +1,8 @@
 {
   "name": "chat-app",
   "authors": [
-    "WoodyWoodsta <woodywoodsta@gmail.com>"
+    "WoodyWoodsta <woodywoodsta@gmail.com>",
+    "Emilie <emzie.star@gmail.com>"
   ],
   "description": "Polymer based chat app using koa, socket.io and arangoDB to develop and test a messaging bar custom element for etrax",
   "main": "",

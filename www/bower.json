@@ -1,0 +1,19 @@
+{
+  "name": "chat-app",
+  "authors": [
+    "WoodyWoodsta <woodywoodsta@gmail.com>"
+  ],
+  "description": "Polymer based chat app using koa, socket.io and arangoDB to develop and test a messaging bar custom element for etrax",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

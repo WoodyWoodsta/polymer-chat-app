@@ -4,9 +4,13 @@ import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaStatic from 'koa-static';
 import responseTime from 'koa-response-time';
+import http from 'http';
+import https from 'https';
 
 import io from 'socket.io';
 import { readFileSync } from 'fs';
+
+import createIOServer from './io-server';
 
 // KoaJS app
 const app = new Koa();
@@ -35,17 +39,16 @@ if (config.useSSL) {
   for (let key in config.ssl) {
     ssl[key] = fs.readFileSync(config.ssl[key], 'utf8');
   }
-  server = require('https').createServer(ssl, app.callback());
+  server = https.createServer(ssl, app.callback());
 } else {
-  server = require('http').createServer(app.callback());
+  server = http.createServer(app.callback());
 }
 
 // attach socket.io
 app.io.attach(server);
 
-//
-// customise here
-//
+// create io server
+createIOServer(app);
 
 // listen
 console.log();

@@ -1,0 +1,30 @@
+{
+  "name": "app-name",
+  "version": "0.1.0",
+  "description": "app-description",
+  "main": "index.js",
+  "author": "author-name <author-email>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "arango-client": "http://gitsub:8282/koa-arango/arango-client@latest",
+    "babel-external-helpers": "http://gitsub:8282/tooling/babel-external-helpers@^6",
+    "debug": "^2.2.0",
+    "koa": "^1",
+    "koa-body": "^1",
+    "koa-static": "^1.5.2",
+    "socket.io": "^1"
+  },
+  "devDependencies": {
+    "babel-core": "^6",
+    "babel-plugin-external-helpers-2": "^6",
+    "babel-plugin-transform-export-extensions": "^6",
+    "babel-plugin-transform-object-rest-spread": "^6",
+    "babel-preset-es2015": "^6",
+    "koa-response-time": "^1"
+  },
+  "scripts": {
+    "build": "rm -rf ./lib && babel src -d lib",
+    "build-helpers": "babel-external-helpers > external-helpers.js"
+  }
+}

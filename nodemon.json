@@ -1,0 +1,9 @@
+{
+  "ext": "*.es6,*aql,*.graphql",
+  "watch": [
+    "src",
+    "gql-queries",
+    "server.config"
+  ],
+  "exec": "node server.js"
+}

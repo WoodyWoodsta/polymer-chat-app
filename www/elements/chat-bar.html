@@ -1,0 +1,39 @@
+<!-- chat-bar polymer custom element -->
+
+<dom-module id="chat-bar">
+  <!-- iron-elements -->
+  <link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      iron-list {
+        --iron-list-items-container: {
+          height: 500px;
+          background-color: green;
+        }
+      }
+    </style>
+
+    <!-- Online User List -->
+
+    <!-- Message List -->
+    <iron-list>
+
+    </iron-list>
+
+    <!-- Message Input Field -->
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'chat-bar'
+
+    });
+
+  </script>
+</dom-module>

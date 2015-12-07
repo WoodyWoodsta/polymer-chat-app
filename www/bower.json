@@ -16,5 +16,9 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1",
+    "iron-list": "PolymerElements/iron-list#~1.1.6"
+  }
 }

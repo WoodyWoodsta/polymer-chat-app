@@ -9,8 +9,8 @@ const dbQueries = new DBQueries();
 export default function init(app) {
 
   // all functions when connected
-  app.io.sockets.on('connection', function(socket){
-    
+  app.io.sockets.on('connection', socket => {
+
     // creates query, sorts messages and limits to 8 messages to display
     dbQueries
       .query(`
@@ -18,38 +18,38 @@ export default function init(app) {
         SORT m.ts DESC
         LIMIT 5
         RETURN {msg: m.msg, nick: m.nick}`)
-      .then(function(data) {
+      .then(data => {
         app.io.sockets.emit('load old msgs', data);
       })
-      .catch(function(error) { console.log(error);});
+      .catch(error => console.log(error));
 
     // to prevent multiples of usernames
-    socket.on('new user', function(data, callback){
+    socket.on('new user', (data, callback) => {
       if (data in users) {
         callback(false);
       } else {
-        callback(true);
         socket.nickname = data;
         users[socket.nickname] = socket;
         app.io.sockets.emit('usernames', Object.keys(users));
+        callback(true);
       }
     });
 
   // to send a message in the form of username: message
-    socket.on('send message', function(data, callback){
+    socket.on('send message', data => {
 
       // remove whitespace
-      var message = data.trim();
+      let message = data.trim();
 
       // determine if it is a whisper or not
-      if(message.substr(0, 3) === '/w '){
+      if(message.substr(0, 3) === '/w ') {
 
         message = message.substr(3);
-        var index = message.indexOf(' ');
+        let index = message.indexOf(' ');
 
         if (index != -1){
-          var name = message.substr(0, index);
-          var message = message.substr(index+1);
+          let name = message.substr(0, index);
+          message = message.substr(index+1);
 
           // check to see if user is online
           if (name in users) {
@@ -66,30 +66,29 @@ export default function init(app) {
       } else {
 
         // saves message to the database
-        var msg = {
+        let msg = {
           ts: Date.now(),
           msg: message,
           nick: socket.nickname
         };
+
+        // adds message to database
         dbQueries
           .query(`
             INSERT @message INTO Messages
             RETURN {msg: NEW.msg, nick: NEW.nick}`,
             {message: msg})
-          .then(function(results) {
-            app.io.sockets.emit('new message', results[0]);
-          })
-          .catch(function(error) { console.log(error);});
-      }
-    });
+          .then(results => app.io.sockets.emit('new message', results[0]))
+          .catch(error => console.log(error));
+    };
 
-  // when disconnected, removes username from array
-  // and updates online statuses
-    socket.on('disconnect', function(/*data*/){
-      if (!socket.nickname) return;
-      delete users[socket.nickname];
-      app.io.sockets.emit('usernames', Object.keys(users));
+    // when disconnected, removes username from array
+    // and updates online statuses
+      socket.on('disconnect', () => {
+        if (!socket.nickname) return;
+        delete users[socket.nickname];
+        app.io.sockets.emit('usernames', Object.keys(users));
+      });
     });
-
   });
 }

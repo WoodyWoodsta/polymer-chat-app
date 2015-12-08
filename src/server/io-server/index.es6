@@ -2,22 +2,15 @@
 
 import { DBQueries } from 'arango-client';
 
-const users = {};
+const users = {
+  Emilie: '',
+  Sean: '',
+  Clinton: ''
+};
 
 const dbQueries = new DBQueries();
 
 export default function init(app) {
-  dbQueries
-    .query(`
-      FOR m IN Messages
-      SORT m.ts DESC
-      LIMIT 5
-      RETURN {msg: m.msg, nick: m.nick}`)
-    .then(data => {
-      app.io.sockets.emit('load old msgs', data);
-    })
-    .catch(error => console.log(error));
-
 
   // all functions when connected
   app.io.sockets.on('connection', socket => {
@@ -33,6 +26,9 @@ export default function init(app) {
         app.io.sockets.emit('load old msgs', data);
       })
       .catch(error => console.log(error));
+
+    // send the hard coded usernames (debug)
+    app.io.sockets.emit('usernames', Object.keys(users));
 
     // to prevent multiples of usernames
     socket.on('new user', (data, callback) => {

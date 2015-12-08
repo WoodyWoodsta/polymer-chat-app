@@ -117,32 +117,37 @@
       // io implementation
       onAttached: function() {
         var _this = this;
+        var loaded = false;
         var socket = io.connect();
 
-        // // displaying usernames
-        // socket.on('usernames', function(data){
-        //   var html ='';
-        //   for (i=0; i < data.length; i++){
-        //     html += data[i] + '<br/>';
-        //   }
-        //   $users.html(html);
-        //
-        // });
+        // displaying usernames
+        socket.on('usernames', function(data){
+          var index = 0;
+
+          // crank through incoming users and formulate a list data object
+          _this.userList = data.map(function(entry) {
+            return {
+              index: index++,
+              data: {
+                user: entry
+              }
+            };
+          });
+        });
 
         // display the old messages
         socket.on('load old msgs', function(data) {
           // check to see if the messages have already been loaded
-          if(true) {
+          if(!loaded) {
             // then load the old messages
-            // loaded = true; TODO
-
+            loaded = true;
             var index = 0;
 
-            // crank through incoming messages and formulate a list object
-            _this.messageList = data.map(function(item) {
+            // crank through incoming messages and formulate a list data object
+            _this.messageList = data.map(function(entry) {
               return {
                 index: index++,
-                data: item
+                data: entry
               };
             });
           }

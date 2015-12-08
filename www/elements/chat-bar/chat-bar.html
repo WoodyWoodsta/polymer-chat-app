@@ -14,19 +14,31 @@
       iron-list {
         --iron-list-items-container: {
           height: 500px;
-          background-color: green;
+          width: 300px;
+          background-color: orange;
+          padding-left: 10px;
+          border-radius: 3px;
         }
+      }
+
+      .message-item {
+        padding-top: 10px;
+        padding-bottom: 10px;
       }
     </style>
 
     <!-- Online User List -->
 
     <!-- Message List -->
-    <iron-list>
-
+    <iron-list items="[[messageList]]">
+      <template>
+        <div class="message-item">
+          <b>[[item.data.nick]]</b>: [[item.data.msg]]
+        </div>
+      </template>
     </iron-list>
 
-    <!-- Message Input Field -->
+    <!-- message-input custom element to go here -->
 
   </template>
 
@@ -38,18 +50,68 @@
         contactList: {
           type: Array,
           value: []
-        }
+        },
+
+        messageList: {
+          type: Array,
+          value: [
+            {
+              index: 0,
+              data: {
+                nick: 'Sean',
+                msg: 'This is the first message'
+              }
+            },
+            {
+              index: 1,
+              data: {
+                nick: 'Emilie',
+                msg: 'Hey! This is the second message'
+              }
+            }
+          ]
+        },
+
       },
 
-      // attached: function() {
-      //   onAttached;
-      // },
-      //
-      // // io implementation
-      // onAttached: function() {
-      //
-      // }
+      attached: function() {
+        this.onAttached();
+      },
 
+      // io implementation
+      onAttached: function() {
+        var _this = this;
+        var socket = io.connect();
+
+        // // displaying usernames
+        // socket.on('usernames', function(data){
+        //   var html ='';
+        //   for (i=0; i < data.length; i++){
+        //     html += data[i] + '<br/>';
+        //   }
+        //   $users.html(html);
+        //
+        // });
+
+        // display the old messages
+        socket.on('load old msgs', function(data) {
+          // check to see if the messages have already been loaded
+          if(true) {
+            // then load the old messages
+            // loaded = true; TODO
+
+            var index = 0;
+
+            // crank through incoming messages and formulate a list object
+            _this.messageList = data.map(function(item) {
+              return {
+                index: index++,
+                data: item
+              };
+            });
+          }
+        });
+      }
     });
 
   </script>

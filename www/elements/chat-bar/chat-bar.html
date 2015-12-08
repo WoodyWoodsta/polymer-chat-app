@@ -2,43 +2,64 @@
 
 <!-- iron-elements -->
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <dom-module id="chat-bar">
 
   <template>
     <style>
       :host {
-        display: block;
+        @apply(--layout-vertical);
+
+        min-height: 200px;
+        border: dashed 1px #c9c9c9;
+      }
+
+      .list-wrapper {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+
+        min-width: 400px;
+      }
+
+      #message-list {
+        @apply(--layout-flex-2)
+      }
+
+      #user-list {
+        width: 100px;
       }
 
       iron-list {
-        --iron-list-items-container: {
-          height: 500px;
-          width: 300px;
-          background-color: orange;
-          padding-left: 10px;
-          border-radius: 3px;
-        }
+        margin: 4px;
+        padding: 10px;
+        background-color: orange;
       }
 
-      .message-item {
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
     </style>
 
-    <!-- Online User List -->
+    <div class="list-wrapper">
+      <!-- Message List -->
+      <iron-list id="message-list" items="[[messageList]]" as="item">
+        <template>
+          <div>
+            <b>[[item.data.nick]]</b>: [[item.data.msg]]
+          </div>
+        </template>
+      </iron-list>
 
-    <!-- Message List -->
-    <iron-list items="[[messageList]]">
-      <template>
-        <div class="message-item">
-          <b>[[item.data.nick]]</b>: [[item.data.msg]]
-        </div>
-      </template>
-    </iron-list>
+      <!-- Online User List -->
+      <iron-list id="user-list" items="[[userList]]" as="item">
+        <template>
+          <div>
+            <b>[[item.data.user]]</b>
+          </div>
+        </template>
+      </iron-list>
+    </div>
 
     <!-- message-input custom element to go here -->
+
 
   </template>
 
@@ -47,33 +68,48 @@
       is: 'chat-bar',
 
       properties: {
-        contactList: {
-          type: Array,
-          value: []
-        },
-
-        messageList: {
+        userList: {
           type: Array,
           value: [
             {
               index: 0,
               data: {
-                nick: 'Sean',
-                msg: 'This is the first message'
-              }
-            },
-            {
-              index: 1,
-              data: {
-                nick: 'Emilie',
-                msg: 'Hey! This is the second message'
+                user: 'Seano'
               }
             }
           ]
+
+          /* userList Schema
+            [
+              {
+                index: 0,
+                data: {
+                  user: 'Sean'
+                }
+              }
+            ]
+          */
+        },
+
+        messageList: {
+          type: Array
+
+          /* messageList Schema
+            [
+              {
+                index: 0,
+                data: {
+                  nick: 'Sean',
+                  msg: 'This is the first message'
+                }
+              }
+            ]
+          */
         },
 
       },
 
+      // element lifecycle
       attached: function() {
         this.onAttached();
       },

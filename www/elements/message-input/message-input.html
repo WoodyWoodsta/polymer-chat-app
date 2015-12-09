@@ -1,0 +1,90 @@
+<!-- message-input polymer custom element -->
+
+<!-- iron-elements -->
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../autogrow-textarea/autogrow-textarea.html">
+
+<!-- paper-elements -->
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+
+<dom-module id="message-input">
+
+  <template>
+
+    <style>
+      :host {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex-none);
+        @apply(--layout-center);
+
+        background-color: #F1F1F1;
+        border-radius: 3px;
+        padding: 6px;
+      }
+
+      #textarea-container {
+        @apply(--layout-self-stretch);
+        background-color: white;
+        padding: 8px;
+        border-radius: 3px;
+      }
+
+      autogrow-textarea {
+        margin: auto;
+        font-family: sans-serif;
+        font-size: 15px;
+        border: none;
+      }
+
+      paper-icon-button {
+        @apply(--layout-self-end);
+        margin-left: 10px;
+        color: #0174DF;
+        --paper-icon-button-ink-color: #BDBDBD;
+      }
+    </style>
+
+    <div id="textarea-container">
+      <autogrow-textarea
+        bind-value="{{message}}"
+        max-rows="7"
+        placeholder="Your text here...">
+      </autogrow-textarea>
+    </div>
+
+      <paper-icon-button
+        id="send"
+        on-click="sendMessage"
+        icon="send"
+        disabled="true">
+      </paper-icon-button>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'message-input',
+
+      properties: {
+        message: {
+          type: String,
+          observer: 'onMessageChange'
+        },
+      },
+
+      onMessageChange: function() {
+        this.$.send.disabled = this.message === '';
+      },
+
+      sendMessage: function() {
+        // do something with bind-value
+        this.fire('submit-message', {message: this.message});
+        this.message = '';
+      }
+    });
+  </script>
+
+</dom-module>

@@ -6,19 +6,25 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/font-roboto/font-roboto.html">
 
 <dom-module id="chat-bar">
 
   <template>
     <style is="custom-style">
       :host {
+        /* CSS Variables */
+        --element-border-radius: var(--ext-element-border-radius, 2px);
+        --element-accent: var(--ext-element-accent, #3F51B5);
+        --element-dark-color: var(--ext-element-dark-color, rgba(0,0,0,.87));
+        --element-light-color: var(--ext-element-light-color, rgba(255,255,255,1));
+        --element-paper-color: var(--ext-element-paper-color, #FAFAFA);
+
         @apply(--layout-horizontal);
         min-height: fit-content;
         min-width: fit-content;
-        border: dashed 1px #c9c9c9;
-
-        /* CSS Variables */
-        --element-border-radius: 2px;
+        border: dashed 1px var(--element-paper-color);
+        font-family: 'Roboto', sans-serif;
       }
 
       #element-paper {
@@ -29,7 +35,7 @@
         overflow: hidden;
 
         border-radius: var(--element-border-radius);
-        background-color: #d9d9d9;
+        background-color: var(--element-paper-color);
       }
 
       .messaging-wrapper {
@@ -39,41 +45,49 @@
         min-width: 400px;
       }
 
+      iron-list {
+        margin: 4px;
+        padding: 10px;
+      }
+
       #message-list {
-        @apply(--layout-flex)
+        @apply(--layout-flex);
+        color: var(--element-dark-color);
+      }
+
+      #message-item {
       }
 
       paper-header-panel {
         min-height: 200px;
 
         --paper-header-panel-waterfall-container: {
-          background-color: #dedede;
+          background-color: #dedede; /* TODO: Find this color */
           border-bottom-right-radius: var(--element-border-radius);
           border-top-right-radius: var(--element-border-radius);
         };
-      }
-
-      #user-list {
-        width: 160px;
       }
 
       .header-panel-title {
         padding: 10px;
         padding-left: 15px;
         border-top-right-radius: var(--element-border-radius);
-        background-color: #006daa;
-        color: white;
+        background-color: var(--element-accent);
+        color: var(--element-light-color);
         font-weight: bold;
       }
 
-      iron-list {
-        margin: 4px;
-        padding: 10px;
+      #user-list {
+        width: 160px;
+        color: var(--element-dark-color);
+        -webkit-box-shadow: -3px 0px 10px -2px rgba(0,0,0,0.3);
+        -moz-box-shadow: -3px 0px 10px -2px rgba(0,0,0,0.3);
+        box-shadow: -3px 0px 10px -2px rgba(0,0,0,0.3);
       }
 
       #test-message-bar {
         height: 40px;
-        background-color: orange;
+        background-color: var(--element-accent);
       }
 
     </style>
@@ -83,7 +97,8 @@
         <!-- Message List -->
         <iron-list id="message-list" items="[[messageList]]" as="item">
           <template>
-            <div>
+            <!-- TODO Make each message an element -->
+            <div id="message-item">
               <b>[[item.data.nick]]</b>: [[item.data.msg]]
             </div>
           </template>

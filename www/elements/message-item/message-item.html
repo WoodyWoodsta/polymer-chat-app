@@ -1,0 +1,52 @@
+<!-- message-item polymer custom element -->
+
+<dom-module id="message-item">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        font-size: 11pt;
+      }
+
+      #message-container {
+        padding: 7px;
+        width: max-content;
+        border-radius: 3px;
+        background-color: rgb(233,233,233);
+        margin: 2px;
+      }
+
+      #message-container[is-owner] {
+        background-color: var(--element-accent);
+        color: var(--element-light-color);
+      }
+
+    </style>
+
+    <div id="message-wrapper">
+      <div id="message-container" is-owner$="{{data.isOwner}}">
+        <b>[[data.nick]]</b>: [[data.msg]]
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'message-item',
+      properties: {
+        // ownMessage: Boolean,
+        data: {
+          type: Object
+        }
+
+        /* data Schema
+          {
+            nick: 'sean',
+            msg: 'hello world'
+          }
+         */
+
+      }
+    });
+  </script>
+</dom-module>

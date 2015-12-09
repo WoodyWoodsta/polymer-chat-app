@@ -12,33 +12,44 @@
   <template>
     <style is="custom-style">
       :host {
-        @apply(--layout-vertical);
-
+        @apply(--layout-horizontal);
         min-height: fit-content;
         min-width: fit-content;
         border: dashed 1px #c9c9c9;
+
+        /* CSS Variables */
+        --element-border-radius: 2px;
       }
 
       #element-paper {
-        border-radius: 5px;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+        min-height: fit-content;
+        min-width: fit-content;
+        overflow: hidden;
+
+        border-radius: var(--element-border-radius);
+        background-color: #d9d9d9;
       }
 
-      .list-wrapper {
-        @apply(--layout-horizontal);
+      .messaging-wrapper {
+        @apply(--layout-vertical);
         @apply(--layout-flex);
 
         min-width: 400px;
       }
 
       #message-list {
-        @apply(--layout-flex-2)
+        @apply(--layout-flex)
       }
 
       paper-header-panel {
         min-height: 200px;
 
         --paper-header-panel-waterfall-container: {
-          background-color: rgb(222,222,222);
+          background-color: #dedede;
+          border-bottom-right-radius: var(--element-border-radius);
+          border-top-right-radius: var(--element-border-radius);
         };
       }
 
@@ -46,10 +57,11 @@
         width: 160px;
       }
 
-      .sidebar-title {
+      .header-panel-title {
         padding: 10px;
         padding-left: 15px;
-        background-color: rgb(0,109,170);
+        border-top-right-radius: var(--element-border-radius);
+        background-color: #006daa;
         color: white;
         font-weight: bold;
       }
@@ -59,10 +71,15 @@
         padding: 10px;
       }
 
+      #test-message-bar {
+        height: 40px;
+        background-color: orange;
+      }
+
     </style>
     <paper-material id="element-paper" elevation="1">
 
-      <div class="list-wrapper">
+      <div class="messaging-wrapper">
         <!-- Message List -->
         <iron-list id="message-list" items="[[messageList]]" as="item">
           <template>
@@ -72,22 +89,26 @@
           </template>
         </iron-list>
 
-        <!-- Online User List -->
-        <paper-header-panel id="user-list" mode="waterfall">
-          <div class="sidebar-title">
-            Online
-          </div>
-          <iron-list items="[[userList]]" as="item">
-            <template>
-              <div>
-                [[item.data.user]]
-              </div>
-            </template>
-          </iron-list>
-        </paper-header-panel>
+        <div id="test-message-bar">
+        </div>
+
+        <!-- message-input custom element to go here -->
+
       </div>
 
-      <!-- message-input custom element to go here -->
+      <!-- Online User List -->
+      <paper-header-panel id="user-list" mode="waterfall">
+        <div class="header-panel-title">
+          Online
+        </div>
+        <iron-list items="[[userList]]" as="item">
+          <template>
+            <div>
+              [[item.data.user]]
+            </div>
+          </template>
+        </iron-list>
+      </paper-header-panel>
 
 
     </paper-material>

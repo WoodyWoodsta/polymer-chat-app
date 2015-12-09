@@ -3,16 +3,24 @@
 <!-- iron-elements -->
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 
 <dom-module id="chat-bar">
 
   <template>
-    <style>
+    <style is="custom-style">
       :host {
         @apply(--layout-vertical);
 
-        min-height: 200px;
+        min-height: fit-content;
+        min-width: fit-content;
         border: dashed 1px #c9c9c9;
+      }
+
+      #element-paper {
+        border-radius: 5px;
       }
 
       .list-wrapper {
@@ -26,41 +34,63 @@
         @apply(--layout-flex-2)
       }
 
+      paper-header-panel {
+        min-height: 200px;
+
+        --paper-header-panel-waterfall-container: {
+          background-color: rgb(222,222,222);
+        };
+      }
+
       #user-list {
-        width: 100px;
+        width: 160px;
+      }
+
+      .sidebar-title {
+        padding: 10px;
+        padding-left: 15px;
+        background-color: rgb(0,109,170);
+        color: white;
+        font-weight: bold;
       }
 
       iron-list {
         margin: 4px;
         padding: 10px;
-        background-color: orange;
       }
 
     </style>
+    <paper-material id="element-paper" elevation="1">
 
-    <div class="list-wrapper">
-      <!-- Message List -->
-      <iron-list id="message-list" items="[[messageList]]" as="item">
-        <template>
-          <div>
-            <b>[[item.data.nick]]</b>: [[item.data.msg]]
+      <div class="list-wrapper">
+        <!-- Message List -->
+        <iron-list id="message-list" items="[[messageList]]" as="item">
+          <template>
+            <div>
+              <b>[[item.data.nick]]</b>: [[item.data.msg]]
+            </div>
+          </template>
+        </iron-list>
+
+        <!-- Online User List -->
+        <paper-header-panel id="user-list" mode="waterfall">
+          <div class="sidebar-title">
+            Online
           </div>
-        </template>
-      </iron-list>
+          <iron-list items="[[userList]]" as="item">
+            <template>
+              <div>
+                [[item.data.user]]
+              </div>
+            </template>
+          </iron-list>
+        </paper-header-panel>
+      </div>
 
-      <!-- Online User List -->
-      <iron-list id="user-list" items="[[userList]]" as="item">
-        <template>
-          <div>
-            <b>[[item.data.user]]</b>
-          </div>
-        </template>
-      </iron-list>
-    </div>
-
-    <!-- message-input custom element to go here -->
+      <!-- message-input custom element to go here -->
 
 
+    </paper-material>
   </template>
 
   <script>

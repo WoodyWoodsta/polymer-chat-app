@@ -1,0 +1,111 @@
+<!-- message-input polymer custom element -->
+
+<!-- iron-elements -->
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../autogrow-textarea/autogrow-textarea.html">
+
+<!-- paper-elements -->
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+
+<dom-module id="message-input">
+
+  <template>
+
+    <style>
+      :host {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+        @apply(--layout-center);
+        background-color: #F1F1F1;
+        padding: 6px;
+
+        /*mixin*/
+        @apply(--message-input);
+      }
+
+      #textarea-container {
+        @apply(--layout-self-stretch);
+        background-color: white;
+        padding: 8px;
+        border-radius: 2px;
+      }
+
+      autogrow-textarea {
+        margin: auto;
+        font-family: sans-serif;
+        font-size: 15px;
+        border: none;
+      }
+
+      paper-icon-button {
+        @apply(--layout-self-end);
+        margin-left: 6px;
+        color: #0174DF;
+        --paper-icon-button-ink-color: #BDBDBD;
+      }
+    </style>
+
+          <!--to create white textbox-->
+    <div id="textarea-container" on-keydown="onKeyDown">
+      <autogrow-textarea
+        id="autoGrowText"
+        bind-value="{{message}}"
+        max-rows="7"
+        placeholder="Your text here...">
+      </autogrow-textarea>
+    </div>
+
+      <paper-icon-button
+        id="send"
+        on-tap="sendMessage"
+        icon="send"
+        disabled="true">
+      </paper-icon-button>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'message-input',
+
+      properties: {
+        message: {
+          type: String,
+          observer: 'onMessageChange'
+        }
+      },
+
+      listeners: {
+        'tap': 'revertFocus'
+      },
+
+      onMessageChange: function() {
+        // enable send button
+        this.$.send.disabled = (this.message === '');
+      },
+
+      sendMessage: function() {
+        // do something with bind-value
+        this.fire('submit-message', {message: this.message});
+        this.message = '';
+      },
+
+      onKeyDown: function(e) {
+        // check for shift and enter
+        if (e.keyCode === 13 && e.shiftKey === false) {
+          e.preventDefault();
+          this.sendMessage();
+        }
+      },
+
+      revertFocus: function() {
+        //any tap calls this function, but the focus function doesn't work
+        console.log('foo');
+        this.$.autoGrowText.focus();
+      }
+    });
+  </script>
+</dom-module>

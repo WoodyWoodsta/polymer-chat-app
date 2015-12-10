@@ -20,7 +20,6 @@
         @apply(--layout-flex-auto);
         @apply(--layout-center);
         background-color: #F1F1F1;
-        border-radius: 3px;
         padding: 6px;
         box-sizing: border-box;
 
@@ -32,7 +31,7 @@
         @apply(--layout-self-stretch);
         background-color: white;
         padding: 8px;
-        border-radius: 3px;
+        border-radius: 2px;
       }
 
       autogrow-textarea {
@@ -44,7 +43,7 @@
 
       paper-icon-button {
         @apply(--layout-self-end);
-        margin-left: 10px;
+        margin-left: 6px;
         color: #0174DF;
         --paper-icon-button-ink-color: #BDBDBD;
       }
@@ -85,6 +84,7 @@
       },
 
       onMessageChange: function() {
+        // enable send button
         this.$.send.disabled = (this.message === '');
       },
 
@@ -95,6 +95,7 @@
       },
 
       onKeyDown: function(e) {
+        // check for shift and enter
         if (e.keyCode === 13 && e.shiftKey === false) {
           e.preventDefault();
           this.sendMessage();
@@ -102,7 +103,7 @@
       },
 
       revertFocus: function() {
-        //this doesn't work
+        //any tap calls this function, but the focus function doesn't work
         console.log('foo');
         this.$.autoGrowText.focus();
       }

@@ -125,15 +125,7 @@
 
       properties: {
         userList: {
-          type: Array,
-          value: [
-            {
-              index: 0,
-              data: {
-                user: 'Seano'
-              }
-            }
-          ]
+          type: Array
 
           /* userList Schema
             [
@@ -153,10 +145,10 @@
           /* messageList Schema
             [
               {
-                index: 0,
+                index: <timestamp>,
                 data: {
-                  nick: 'Sean',
-                  msg: 'This is the first message'
+                  nick: <nickname>,
+                  msg: <message data>
                 }
               }
             ]
@@ -170,7 +162,9 @@
       },
 
       submitMessage: function(e) {
-        console.log(e.detail.message);
+        this.socket.emit('send message', e.detail.message, function(data){
+          // TODO: Handle this callback
+        });
       },
 
       // TODO: Fire an iron-list resize when element is ready
@@ -185,10 +179,11 @@
         var _this = this;
         var loaded = false;
         var viewer = 'Woody'; // FIXME: Fetch this value when "logging in"
-        var socket = io.connect();
+        var newestMessageIdx = undefined;
+        _this.socket = io.connect();
 
-        // displaying usernames
-        socket.on('usernames', function(data){
+        // Receive the list of usernames
+        _this.socket.on('usernames', function(data){
           var index = 0;
 
           // crank through incoming users and formulate a list data object
@@ -202,24 +197,37 @@
           });
         });
 
-        // display the old messages
-        socket.on('load old msgs', function(data) {
+        // Receive the message history
+        _this.socket.on('load old msgs', function(data) {
           // check to see if the messages have already been loaded
           if(!loaded) {
             // then load the old messages
             loaded = true;
-            var index = 0;
 
-            // crank through incoming messages and formulate a list data object
+            // crank through incoming messages and formulate a list data object, reversed
             _this.messageList = data.map(function(entry) {
               // Check if the message belongs to the viewer
               entry.isOwner = (entry.nick === viewer);
+
+              // Update the newest message index
+              newestMessageIdx = entry.ts;
               return {
-                index: index++,
-                data: entry
+                index: entry.ts,
+                data: entry // REVIEW: Consider omitting the timestamp from the data key
               };
-            });
+            }).reverse();
           }
+
+          // TODO: scroll to the most recent message
+        });
+
+        // Receieve a new message
+        _this.socket.on('new message', function(entry){
+          // Append the list data using the provided `push` method
+          _this.push('messageList', {
+            index: entry.ts,
+            data: entry
+          });
         });
       }
     });

@@ -15,13 +15,13 @@ export default function init(app) {
   // all functions when connected
   app.io.sockets.on('connection', socket => {
 
-    // creates query, sorts messages and limits to 8 messages to display
+    // creates query, sorts messages and limits to 100 messages to display
     dbQueries
       .query(`
         FOR m IN Messages
         SORT m.ts DESC
-        LIMIT 5
-        RETURN {msg: m.msg, nick: m.nick}`)
+        LIMIT 100
+        RETURN {msg: m.msg, nick: m.nick, ts: m.ts}`)
       .then(data => {
         app.io.sockets.emit('load old msgs', data);
       })
@@ -83,7 +83,7 @@ export default function init(app) {
         dbQueries
           .query(`
             INSERT @message INTO Messages
-            RETURN {msg: NEW.msg, nick: NEW.nick}`,
+            RETURN {msg: NEW.msg, nick: NEW.nick, ts: NEW.ts}`,
             {message: msg})
           .then(results => app.io.sockets.emit('new message', results[0]))
           .catch(error => console.log(error));

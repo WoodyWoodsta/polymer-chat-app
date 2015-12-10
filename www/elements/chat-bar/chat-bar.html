@@ -45,8 +45,6 @@
       .messaging-wrapper {
         @apply(--layout-vertical);
         @apply(--layout-flex);
-
-        /*min-width: 400px;*/
       }
 
       iron-list {
@@ -88,7 +86,6 @@
           display: none;
         }
       }
-
     </style>
 
     <paper-material id="element-paper" elevation="1">
@@ -119,8 +116,8 @@
           </template>
         </iron-list>
       </div>
-
     </paper-material>
+
   </template>
 
   <script>
@@ -180,7 +177,7 @@
       onAttached: function() {
         var _this = this;
         var loaded = false;
-        var viewer = 'Woody';
+        var viewer = 'Woody'; // FIXME: Fetch this value when "logging in"
         var socket = io.connect();
 
         // displaying usernames

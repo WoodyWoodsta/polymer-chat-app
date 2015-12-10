@@ -4,27 +4,33 @@
   <template>
     <style>
       :host {
-        display: inline-block;
+        display: block;
         font-size: 11pt;
       }
 
-      #message-container {
-        padding: 7px;
-        width: max-content;
-        border-radius: 3px;
-        background-color: rgb(233,233,233);
-        margin: 2px;
+      .message-wrapper {
+        @apply(--layout-vertical);
       }
 
-      #message-container[is-owner] {
+      .message-container {
+        margin: 2px;
+        padding: 7px;
+        width: max-content;
+        max-width: 60%;
+        border-radius: 5px;
+        background-color: rgb(233,233,233);
+      }
+
+      .message-container[is-owner] {
+        @apply(--layout-self-end);
         background-color: var(--element-accent);
         color: var(--element-light-color);
       }
 
     </style>
 
-    <div id="message-wrapper">
-      <div id="message-container" is-owner$="{{data.isOwner}}">
+    <div class="message-wrapper">
+      <div class="message-container" is-owner$="{{data.isOwner}}">
         <b>[[data.nick]]</b>: [[data.msg]]
       </div>
     </div>

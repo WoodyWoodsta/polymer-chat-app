@@ -8,6 +8,10 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
 
 <!-- custom-elements -->
 <link rel="import" href="../message-item/message-item.html">
@@ -26,12 +30,13 @@
         --element-accent: var(--ext-element-accent, #3F51B5);
         --element-dark-color: var(--ext-element-dark-color, rgba(0,0,0,.87));
         --element-light-color: var(--ext-element-light-color, rgba(255,255,255,1));
+        --element-light-transparent-color: var(rgba(255,255,255,.7));
         --element-paper-color: var(--ext-element-paper-color, #FAFAFA);
 
         @apply(--layout);
         @apply(--layout-flex-auto);
 
-        border: dashed 1px rgb(218,218,218);
+        /*border: dashed 1px rgb(218,218,218);*/
         font-family: 'Roboto', sans-serif;
       }
 
@@ -89,6 +94,14 @@
         }
       }
     </style>
+
+    <paper-dialog id="username-dialog" with-backdrop no-cancel-on-outside-click>
+      <h2>Enter a username</h2>
+      <paper-input id="username-input" label="Username" value="{{username}}"></paper-input>
+      <div class="buttons">
+        <paper-button id="username-submit-button" on-click="addUser">Connect</paper-button>
+      </div>
+    </paper-dialog>
 
     <paper-material id="element-paper" elevation="1">
 
@@ -155,12 +168,33 @@
           */
         },
 
+        currentUser: {
+          type: String,
+          value: ''
+        },
+        newestMessageIdx: Number
       },
 
       listeners: {
         'submit-message': 'submitMessage'
       },
 
+      // When the username-submit-button is pressed, add the user
+      addUser: function() {
+        var _this = this;
+        _this.socket.emit('new user', _this.username, function(data){
+          // If the username is valid...
+          if(data) {
+            _this.currentUser = _this.username;
+            _this.$['username-dialog'].close();
+          } else {
+            // TODO: Handle the invalid username callback
+          }
+        });
+
+      },
+
+      // Send the message to the server
       submitMessage: function(e) {
         this.socket.emit('send message', e.detail.message, function(data){
           // TODO: Handle this callback
@@ -178,8 +212,11 @@
       onAttached: function() {
         var _this = this;
         var loaded = false;
-        var viewer = 'Woody'; // FIXME: Fetch this value when "logging in"
-        var newestMessageIdx = undefined;
+
+        // Open the username dialog to retrieve username
+        _this.$['username-dialog'].open();
+
+        // Open the socket connection
         _this.socket = io.connect();
 
         // Receive the list of usernames
@@ -207,7 +244,7 @@
             // crank through incoming messages and formulate a list data object, reversed
             _this.messageList = data.map(function(entry) {
               // Check if the message belongs to the viewer
-              entry.isOwner = (entry.nick === viewer);
+              entry.isOwner = (entry.nick === _this.currentUser);
 
               // Update the newest message index
               newestMessageIdx = entry.ts;
@@ -224,6 +261,10 @@
         // Receieve a new message
         _this.socket.on('new message', function(entry){
           // Append the list data using the provided `push` method
+          newestMessageIdx = entry.ts;
+
+          // Check if the message belongs to the viewer
+          entry.isOwner = (entry.nick === _this.currentUser);
           _this.push('messageList', {
             index: entry.ts,
             data: entry

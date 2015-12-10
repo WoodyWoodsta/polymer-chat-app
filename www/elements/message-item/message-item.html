@@ -8,10 +8,6 @@
         font-size: 11pt;
       }
 
-      b {
-        font-size: 10pt;
-      }
-
       .message-wrapper {
         @apply(--layout-vertical);
       }
@@ -21,7 +17,7 @@
         padding: 7px;
         width: max-content;
         max-width: 60%;
-        border-radius: 5px;
+        border-radius: 2px;
         background-color: rgb(233,233,233);
       }
 
@@ -31,20 +27,26 @@
         color: var(--element-light-color);
       }
 
-      .nick-container {
-        margin-bottom: 3px;
+      .nick {
+        margin-bottom: 5px;
+        font-size: 10pt;
+        font-weight: 600;
+        color: rgb(138,138,138);
       }
 
-      .message-container[is-owner] .nick-container {
+      .message-container[is-owner] .nick {
         display: none;
+      }
+
+      .message-container {
       }
 
     </style>
 
     <div class="message-wrapper">
       <div class="message-container" is-owner$="{{data.isOwner}}">
-        <div class="nick-container"><b>[[data.nick]]</b></div>
-        [[data.msg]]
+        <div class="nick">[[data.nick]]</div>
+        <div class="message">[[data.msg]]</div>
       </div>
     </div>
 

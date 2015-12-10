@@ -2,11 +2,7 @@
 
 import { DBQueries } from 'arango-client';
 
-const users = {
-  Emilie: '',
-  Sean: '',
-  Clinton: ''
-};
+const users = {};
 
 const dbQueries = new DBQueries();
 
@@ -27,9 +23,9 @@ export default function init(app) {
       })
       .catch(error => console.log(error));
 
-    // send the hard coded usernames (debug)
-    app.io.sockets.emit('usernames', Object.keys(users));
-
+    // // send the hard coded usernames (debug)
+    // app.io.sockets.emit('usernames', Object.keys(users));
+    //
     // to prevent multiples of usernames
     socket.on('new user', (data, callback) => {
       if (data in users) {

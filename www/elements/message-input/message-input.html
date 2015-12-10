@@ -122,13 +122,15 @@
         }
       },
 
-      revertFocus: function() {
-        //any tap calls this function, but the focus function doesn't work
-        console.log('foo');
-        this.$.autoGrowText.focus();
+      revertFocus: function(e) {
+        // maintain focus on textarea whilst tapping in message-input
+        e.preventDefault();
+        console.log(e);
+        this.$['autoGrowText'].textarea.focus();
       },
 
       resizeHandler: function() {
+        // hide send button when resizing
         if(this.$['textarea-container'].clientWidth <= 300) {
           this.hideButton = true;
         } else {

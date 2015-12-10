@@ -11,6 +11,7 @@
 
 <!-- custom-elements -->
 <link rel="import" href="../message-item/message-item.html">
+<link rel="import" href="../message-input/message-input.html">
 
 <!-- other imports -->
 <link rel="import" href="../../bower_components/font-roboto/roboto.html">
@@ -76,10 +77,11 @@
         box-shadow: -3px 0px 10px -2px rgba(0,0,0,0.3);
       }
 
-      #test-message-bar {
+      /* TODO: Get rid of these styles */
+      /*#test-message-bar {
         height: 40px;
         background-color: var(--element-accent);
-      }
+      }*/
 
       @media (max-width: 560px) {
         #user-list {
@@ -98,10 +100,7 @@
           </template>
         </iron-list>
 
-        <div id="test-message-bar">
-        </div>
-
-        <!-- message-input custom element to go here -->
+        <message-input></message-input>
 
       </div>
 
@@ -164,6 +163,14 @@
           */
         },
 
+      },
+
+      listeners: {
+        'submit-message': 'submitMessage'
+      },
+
+      submitMessage: function(e) {
+        console.log(e.detail.message);
       },
 
       // TODO: Fire an iron-list resize when element is ready

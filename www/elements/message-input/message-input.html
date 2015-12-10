@@ -94,7 +94,7 @@
       },
 
       onKeyDown: function(e) {
-        // check for shift and enter
+        // check for not-shift and enter
         if (e.keyCode === 13 && e.shiftKey === false) {
           e.preventDefault();
           this.sendMessage();

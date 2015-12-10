@@ -8,6 +8,10 @@
         font-size: 11pt;
       }
 
+      b {
+        font-size: 10pt;
+      }
+
       .message-wrapper {
         @apply(--layout-vertical);
       }
@@ -27,11 +31,20 @@
         color: var(--element-light-color);
       }
 
+      .nick-container {
+        margin-bottom: 3px;
+      }
+
+      .message-container[is-owner] .nick-container {
+        display: none;
+      }
+
     </style>
 
     <div class="message-wrapper">
       <div class="message-container" is-owner$="{{data.isOwner}}">
-        <b>[[data.nick]]</b>: [[data.msg]]
+        <div class="nick-container"><b>[[data.nick]]</b></div>
+        [[data.msg]]
       </div>
     </div>
 

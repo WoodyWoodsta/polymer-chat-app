@@ -62,7 +62,7 @@
           <!--to create white textbox-->
     <div id="textarea-container" on-keydown="onKeyDown">
       <autogrow-textarea
-        id="autoGrowText"
+        id="autogrowText"
         bind-value="{{message}}"
         max-rows="7"
         placeholder="Your text here...">
@@ -105,7 +105,11 @@
 
       onMessageChange: function() {
         // enable send button
-        this.$.send.disabled = (this.message === '');
+        var newMessage = this.message.replace(/^\s+/g, '');
+        if (newMessage !== '') {
+          this.$.send.disabled = (this.message === '');
+        }
+
       },
 
       sendMessage: function() {
@@ -126,7 +130,7 @@
         // maintain focus on textarea whilst tapping in message-input
         e.preventDefault();
         console.log(e);
-        this.$['autoGrowText'].textarea.focus();
+        this.$['autogrowText'].textarea.focus();
       },
 
       resizeHandler: function() {

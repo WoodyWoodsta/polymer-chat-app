@@ -11,21 +11,6 @@ export default function init(app) {
   // all functions when connected
   app.io.sockets.on('connection', socket => {
 
-    // creates query, sorts messages and limits to 100 messages to display
-    dbQueries
-      .query(`
-        FOR m IN Messages
-        SORT m.ts DESC
-        LIMIT 100
-        RETURN {msg: m.msg, nick: m.nick, ts: m.ts}`)
-      .then(data => {
-        app.io.sockets.emit('load old msgs', data);
-      })
-      .catch(error => console.log(error));
-
-    // // send the hard coded usernames (debug)
-    // app.io.sockets.emit('usernames', Object.keys(users));
-    //
     // to prevent multiples of usernames
     socket.on('new user', (data, callback) => {
       if (data in users) {
@@ -34,7 +19,30 @@ export default function init(app) {
         socket.nickname = data;
         users[socket.nickname] = socket;
         app.io.sockets.emit('usernames', Object.keys(users));
+
+        // creates query, sorts messages and limits to 100 messages to display
+        dbQueries
+          .query(`
+            FOR m IN Messages
+            SORT m.ts DESC
+            LIMIT 100
+            RETURN {msg: m.msg, nick: m.nick, ts: m.ts}`)
+          .then(data => {
+            app.io.sockets.emit('load old msgs', data);
+          })
+          .catch(error => console.log(error));
+
         callback(true);
+      }
+    });
+
+    // If the user was connected, but server restarted, restore the user
+    socket.on('restore user', (data) => {
+      // Only if the user is not in the list
+      if (!(data in users)) {
+        socket.nickname = data;
+        users[socket.nickname] = socket;
+        app.io.sockets.emit('usernames', Object.keys(users));
       }
     });
 
@@ -83,7 +91,8 @@ export default function init(app) {
             {message: msg})
           .then(results => app.io.sockets.emit('new message', results[0]))
           .catch(error => console.log(error));
-    };
+      };
+    });
 
     // when disconnected, removes username from array
     // and updates online statuses
@@ -92,6 +101,6 @@ export default function init(app) {
         delete users[socket.nickname];
         app.io.sockets.emit('usernames', Object.keys(users));
       });
-    });
+
   });
 }

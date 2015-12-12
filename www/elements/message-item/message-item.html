@@ -4,6 +4,9 @@
   <template>
     <style>
       :host {
+        /* CSS Variables */
+        --error-color: rgb(187,40,40);
+
         display: block;
         font-size: 11pt;
       }
@@ -27,6 +30,10 @@
         color: var(--element-light-color);
       }
 
+      .message-container[error] {
+        background-color: var(--error-color);
+      }
+
       .nick {
         margin-bottom: 5px;
         font-size: 10pt;
@@ -38,16 +45,22 @@
         display: none;
       }
 
-      .message-container {
+      .error-container {
+        @apply(--layout-self-end);
+        /*display: none;*/
+        margin: 3px;
+        font-size: 9pt;
+        color: rgb(0,0,0);
       }
 
     </style>
 
     <div class="message-wrapper">
-      <div class="message-container" is-owner$="{{data.isOwner}}">
+      <div class="message-container" is-owner$="{{data.isOwner}}" >
         <div class="nick">[[data.nick]]</div>
         <div class="message">[[data.msg]]</div>
       </div>
+      <div class="error-container" hidden$="{{!data.error}}">Sending failed</div>
     </div>
 
   </template>
@@ -55,7 +68,6 @@
     Polymer({
       is: 'message-item',
       properties: {
-        // ownMessage: Boolean,
         data: {
           type: Object
         }

@@ -98,8 +98,12 @@
         error-message="Sorry, that username is taken!"
         on-keydown="onUsernameKeyDown"></paper-input>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="addUser">Connect</paper-button>
+        <paper-button id="username-submit-button" on-click="addUser">{{errorMessage}}</paper-button>
       </div>
+    </paper-dialog>
+
+    <paper-dialog id="error-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-click>
+      <h2>Server disconnected</h2>
     </paper-dialog>
 
     <paper-material id="element-paper" elevation="1">
@@ -185,7 +189,7 @@
       // When the username-submit-button is pressed, add the user
       addUser: function() {
         var _this = this;
-        _this.socket.emit('new user', _this.username, function(data){
+        _this.socket.emit('new user', _this.username, function(data) {
           // If the username is valid...
           if(data) {
             _this.currentUser = _this.username;
@@ -213,12 +217,13 @@
 
       // Send the message to the server
       submitMessage: function(e) {
-        this.socket.emit('send message', e.detail.message, function(data) {
-          // FIXME: Complete error handling
-          // _this.push('messageList', {
-          //   index: entry.ts,
-          //   data: entry
-          // });
+        this.socket.emit('send message', e.detail.message, function(entry) {
+          // Append an error status to the message data if the send failed
+          entry.error = true;
+          _this.push('messageList', {
+            index: entry.ts,
+            data: entry
+          });
         });
       },
 
@@ -243,6 +248,19 @@
 
         // Open the socket connection
         _this.socket = io.connect();
+
+        // When connection is successful
+        _this.socket.on('connect', function() {
+          // Only resend the username to the server if we connected once before
+          if (loaded) {
+            _this.socket.emit('restore user', _this.currentUser);
+          }
+
+          // If in fact the connection has been restored, close the dialog
+          if (_this.socket.connected) {
+            _this.$['error-dialog'].close();
+          }
+        });
 
         // Receive the list of usernames
         _this.socket.on('usernames', function(data){
@@ -295,8 +313,18 @@
             data: entry
           });
 
-          _this.scrollToLastMessage();
+          // Only scroll to the bottom if it is the user's message
+          if (entry.isOwner) {
+            _this.scrollToLastMessage();
+          }
         });
+
+        // Notify the user when the server disconnects
+        _this.socket.on('disconnect', function() {
+          _this.errorMessage = 'Server disconnected'; // TODO: Think of a better message here
+          _this.$['error-dialog'].open();
+        });
+
       }
     });
 

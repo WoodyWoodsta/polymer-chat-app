@@ -303,7 +303,7 @@
         });
 
         // Receieve a new message
-        _this.socket.on('new message', function(entry){
+        _this.socket.on('new message', function(entry) {
           // Append the list data using the provided `push` method
           _this.newestMessageIdx = entry.ts;
 
@@ -317,6 +317,28 @@
           // Only scroll to the bottom if it is the user's message
           if (entry.isOwner) {
             _this.scrollToLastMessage();
+          }
+        });
+
+        // Place into the message list a notification of a new user
+        _this.socket.on('user notification', function(data) {
+          // Only do this if the message list has been loaded
+          if (loaded) {
+            data.isOwner = (data.nick === _this.currentUser);
+            data.userNotification = true;
+
+            // Formulate the message that will display
+            if (data.notificationType === 'join') {
+              data.msg = data.nick + ' joined the chat';
+            } else if (data.notificationType === 'leave') {
+              data.msg = data.nick + ' left the chat';
+            }
+
+            // Update the list
+            _this.push('messageList', {
+              index: data.ts,
+              data: data
+            });
           }
         });
 

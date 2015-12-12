@@ -20,6 +20,13 @@ export default function init(app) {
         users[socket.nickname] = socket;
         app.io.sockets.emit('usernames', Object.keys(users));
 
+        // Notify the users of a new user
+        app.io.sockets.emit('user notification', {
+          nick: socket.nickname,
+          ts: Date.now(),
+          notificationType: 'join'
+        });
+
         console.log('[e-chat] - New user connected');
 
         // creates query, sorts messages and limits to 100 messages to display
@@ -101,9 +108,18 @@ export default function init(app) {
     // when disconnected, removes username from array
     // and updates online statuses
       socket.on('disconnect', () => {
+        var deletedNick = socket.nickname;
+
         if (!socket.nickname) return;
         delete users[socket.nickname];
         app.io.sockets.emit('usernames', Object.keys(users));
+
+        // Notify the users of a new user
+        app.io.sockets.emit('user notification', {
+          nick: deletedNick,
+          ts: Date.now(),
+          notificationType: 'leave'
+        });
 
         console.log('[e-chat] - User disconnected');
       });

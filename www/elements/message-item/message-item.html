@@ -6,6 +6,7 @@
       :host {
         /* CSS Variables */
         --error-color: rgb(187,40,40);
+        --notification-color: rgb(166,166,166);
 
         display: block;
         font-size: 11pt;
@@ -16,7 +17,7 @@
       }
 
       .message-container {
-        margin: 2px;
+        margin: 4px;
         padding: 7px;
         width: max-content;
         max-width: 60%;
@@ -28,6 +29,14 @@
         @apply(--layout-self-end);
         background-color: var(--element-accent);
         color: var(--element-light-color);
+      }
+
+      .message-container[is-notification] {
+        @apply(--layout-self-center);
+        padding: 3px 7px;
+        font-size: 9pt;
+        color: var(--element-light-color);
+        background-color: var(--notification-color);
       }
 
       .message-container[error] {
@@ -45,6 +54,10 @@
         display: none;
       }
 
+      .message-container[is-notification] .nick {
+        display: none;
+      }
+
       .error-container {
         @apply(--layout-self-end);
         /*display: none;*/
@@ -56,7 +69,7 @@
     </style>
 
     <div class="message-wrapper">
-      <div class="message-container" is-owner$="{{data.isOwner}}" >
+      <div class="message-container" is-owner$="{{data.isOwner}}" is-notification$="{{data.userNotification}}">
         <div class="nick">[[data.nick]]</div>
         <div class="message">[[data.msg]]</div>
       </div>
@@ -72,6 +85,7 @@
           type: Object
         }
 
+        // TODO: Update this info
         /* data Schema
           {
             nick: 'sean',

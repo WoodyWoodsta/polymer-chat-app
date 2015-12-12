@@ -98,12 +98,12 @@
         error-message="Sorry, that username is taken!"
         on-keydown="onUsernameKeyDown"></paper-input>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="addUser">{{errorMessage}}</paper-button>
+        <paper-button id="username-submit-button" on-click="connectSocket">Connect</paper-button>
       </div>
     </paper-dialog>
 
     <paper-dialog id="error-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-click>
-      <h2>Server disconnected</h2>
+      <h2>{{errorMessage}}</h2>
     </paper-dialog>
 
     <paper-material id="element-paper" elevation="1">
@@ -211,7 +211,7 @@
       // Allow enter to submit the username
       onUsernameKeyDown: function(e) {
         if (e.keyCode === 13 && e.shiftKey === false) {
-          this.addUser();
+          this.connectSocket();
         }
       },
 
@@ -235,16 +235,14 @@
 
       // element lifecycle
       attached: function() {
-        this.onAttached();
+        // Open the username dialog to retrieve username
+        this.$['username-dialog'].open();
       },
 
-      // io implementation
-      onAttached: function() {
+      // Create a socket aided connection to the server, and setup callbacks
+      connectSocket: function() {
         var _this = this;
         var loaded = false;
-
-        // Open the username dialog to retrieve username
-        _this.$['username-dialog'].open();
 
         // Open the socket connection
         _this.socket = io.connect();
@@ -298,7 +296,10 @@
             }).reverse();
           }
 
-          _this.scrollToLastMessage();
+          // Wait before scolling to the bottom of the list
+          _this.async(function() {
+            _this.scrollToLastMessage();
+          }, 10);
         });
 
         // Receieve a new message
@@ -325,6 +326,8 @@
           _this.$['error-dialog'].open();
         });
 
+        // Finally, add the user
+        _this.addUser();
       }
     });
 

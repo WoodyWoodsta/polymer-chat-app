@@ -20,6 +20,8 @@ export default function init(app) {
         users[socket.nickname] = socket;
         app.io.sockets.emit('usernames', Object.keys(users));
 
+        console.log('[e-chat] - New user connected');
+
         // creates query, sorts messages and limits to 100 messages to display
         dbQueries
           .query(`
@@ -43,6 +45,8 @@ export default function init(app) {
         socket.nickname = data;
         users[socket.nickname] = socket;
         app.io.sockets.emit('usernames', Object.keys(users));
+
+        console.log('[e-chat] - Existing user reconnected');
       }
     });
 
@@ -100,6 +104,8 @@ export default function init(app) {
         if (!socket.nickname) return;
         delete users[socket.nickname];
         app.io.sockets.emit('usernames', Object.keys(users));
+
+        console.log('[e-chat] - User disconnected');
       });
 
   });

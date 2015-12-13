@@ -3,6 +3,7 @@
 <!-- iron-elements -->
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 
 <!-- paper-elements -->
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
@@ -11,6 +12,7 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
 
 <!-- custom-elements -->
@@ -67,6 +69,7 @@
       }
 
       .header-panel-title {
+        @apply(--layout-horizontal);
         padding: 10px;
         padding-left: 15px;
         border-top-right-radius: var(--element-border-radius);
@@ -81,8 +84,12 @@
         font-style: italic;
       }
 
+      #header-panel-secondary-title-wrapper {
+        @apply(--layout-flex);
+      }
+
       #user-list {
-        width: 160px;
+        width: 200px;
         border-bottom-right-radius: var(--element-border-radius);
         border-top-right-radius: var(--element-border-radius);
         border-left: solid 1px rgb(223,223,223);
@@ -133,8 +140,11 @@
       <!-- Online User List -->
       <div id="user-list">
         <div class="header-panel-title">
-          <div>Online</div>
-          <div id="header-panel-secondary-title" hidden$="{{!currentUser}}">as {{currentUser}}</div>
+          <div id="header-panel-secondary-title-wrapper">
+            <div>Online</div>
+            <div id="header-panel-secondary-title" hidden$="[[!currentUser]]">as {{currentUser}}</div>
+          </div>
+          <paper-icon-button id="logout-button" icon="icons:power-settings-new" on-click="disconnectSocket"></paper-icon-button>
         </div>
         <iron-list items="[[userList]]" as="item">
           <template>
@@ -190,7 +200,11 @@
           type: String,
           value: ''
         },
-        newestMessageIdx: Number
+        newestMessageIdx: Number,
+        wasDisconnected: {
+          type: Boolean,
+          value: false
+        }
       },
 
       listeners: {
@@ -246,6 +260,10 @@
 
       // element lifecycle
       attached: function() {
+        this.onAttached();
+      },
+
+      onAttached: function() {
         // Open the username dialog to retrieve username
         this.$['username-dialog'].open();
       },
@@ -255,8 +273,14 @@
         var _this = this;
         var loaded = false;
 
-        // Open the socket connection
-        _this.socket = io.connect();
+        // Open the socket connection, force a new connection if this is not the first time
+        if (!_this.wasDisconnected) {
+          _this.socket = io.connect();
+        } else {
+          _this.socket = io.connect({'forceNew': true});
+        }
+
+        _this.wasDisconnected = false;
 
         // When connection is successful
         _this.socket.on('connect', function() {
@@ -355,12 +379,26 @@
 
         // Notify the user when the server disconnects
         _this.socket.on('disconnect', function() {
-          _this.errorMessage = 'Server disconnected'; // TODO: Think of a better message here
-          _this.$['error-dialog'].open();
+          if (!_this.wasDisconnected) {
+            _this.errorMessage = 'Server disconnected'; // TODO: Think of a better message here
+            _this.$['error-dialog'].open();
+          }
         });
 
         // Finally, add the user
         _this.addUser();
+      },
+
+      // Disconnect the user
+      disconnectSocket: function() {
+        // Disconnect the socket
+        this.wasDisconnected = true;
+        this.socket.close();
+        this.socket = null;
+        this.loaded = false;
+        this.currentUser = '';
+
+        this.$['username-dialog'].open();
       }
     });
 

@@ -4,6 +4,7 @@ import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaStatic from 'koa-static';
 import responseTime from 'koa-response-time';
+import koaRouter from 'koa-router';
 import http from 'http';
 import https from 'https';
 

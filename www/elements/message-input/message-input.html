@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="../autogrow-textarea/autogrow-textarea.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <!-- paper-elements -->
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
@@ -25,6 +26,12 @@
         /*mixin*/
         @apply(--message-input);
       }
+
+      /*@media all and (max-width: 500px) {
+        #send {
+          display: none;
+        }
+      }*/
 
       #textarea-container {
         @apply(--layout-self-stretch);
@@ -55,7 +62,7 @@
           <!--to create white textbox-->
     <div id="textarea-container" on-keydown="onKeyDown">
       <autogrow-textarea
-        id="autoGrowText"
+        id="autogrowText"
         bind-value="{{message}}"
         max-rows="7"
         placeholder="Your text here...">
@@ -64,6 +71,7 @@
 
       <paper-icon-button
         id="send"
+        hidden="[[hideButton]]"
         on-tap="sendMessage"
         icon="send"
         disabled="true">
@@ -79,16 +87,29 @@
         message: {
           type: String,
           observer: 'onMessageChange'
+        },
+
+        hideButton: {
+          type: Boolean,
         }
       },
 
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+
       listeners: {
-        'tap': 'revertFocus'
+        'tap': 'revertFocus',
+        'iron-resize': 'resizeHandler'
       },
 
       onMessageChange: function() {
         // enable send button
-        this.$.send.disabled = (this.message === '');
+        var newMessage = this.message.replace(/^\s+/g, '');
+        if (newMessage !== '') {
+          this.$.send.disabled = (this.message === '');
+        }
+
       },
 
       sendMessage: function() {
@@ -105,11 +126,22 @@
         }
       },
 
-      revertFocus: function() {
-        //any tap calls this function, but the focus function doesn't work
-        console.log('foo');
-        this.$.autoGrowText.focus();
+      revertFocus: function(e) {
+        // maintain focus on textarea whilst tapping in message-input
+        e.preventDefault();
+        console.log(e);
+        this.$['autogrowText'].textarea.focus();
+      },
+
+      resizeHandler: function() {
+        // hide send button when resizing
+        if(this.$['textarea-container'].clientWidth <= 300) {
+          this.hideButton = true;
+        } else {
+          this.hideButton = false;
+        }
       }
+
     });
   </script>
 </dom-module>

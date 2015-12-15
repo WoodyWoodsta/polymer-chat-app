@@ -106,7 +106,6 @@
       onMessageChange: function() {
         // enable send button
         var newMessage = this.message.replace(/^\s+/g, '');
-        console.log(newMessage);
         if (newMessage !== '') {
           this.$.send.disabled = false;
         } else {
@@ -124,15 +123,17 @@
       onKeyDown: function(e) {
         // check for shift and enter
         if (e.keyCode === 13 && e.shiftKey === false) {
+          var newMessage = this.message.replace(/^\s+/g, '');
           e.preventDefault();
-          this.sendMessage();
+          if (newMessage !== '') {
+            this.sendMessage();
+          }
         }
       },
 
       revertFocus: function(e) {
         // maintain focus on textarea whilst tapping in message-input
         e.preventDefault();
-        console.log(e);
         this.$['autogrowText'].textarea.focus();
       },
 

@@ -106,7 +106,6 @@
       onMessageChange: function() {
         // enable send button
         var newMessage = this.message.replace(/^\s+/g, '');
-        console.log(newMessage);
         if (newMessage !== '') {
           this.$.send.disabled = false;
         } else {
@@ -123,16 +122,19 @@
 
       onKeyDown: function(e) {
         // check for not-shift and enter
+        // FIXME: For some reason, when you first load the page, click in the input area and hit enter, it creates a new line
         if (e.keyCode === 13 && e.shiftKey === false) {
-          e.preventDefault(); // REVIEW: Is this needed
-          this.sendMessage();
+          var newMessage = this.message.replace(/^\s+/g, '');
+          e.preventDefault();
+          if (newMessage !== '') {
+            this.sendMessage();
+          }
         }
       },
 
       revertFocus: function(e) {
         // maintain focus on textarea whilst tapping in message-input
         e.preventDefault();
-        console.log(e);
         this.$['autogrowText'].textarea.focus();
       },
 

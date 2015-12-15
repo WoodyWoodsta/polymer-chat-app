@@ -50,7 +50,7 @@
         background-color: var(--element-paper-color);
       }
 
-      .messaging-wrapper {
+      #messaging-wrapper {
         @apply(--layout-vertical);
         @apply(--layout-flex);
       }
@@ -68,7 +68,7 @@
         flex-grow: 0;
       }
 
-      .header-panel-title {
+      #header-panel-title {
         @apply(--layout-horizontal);
         padding: 10px;
         padding-left: 15px;
@@ -100,32 +100,51 @@
         font-size: 10pt;
       }
 
-      @media (max-width: 560px) {
+      #login-dialog-header > h1 {
+        font-family: monospace;
+        margin-bottom: 5px;
+      }
+
+      @media (max-width: 520px) {
         #user-list {
           display: none;
         }
       }
     </style>
 
-    <paper-dialog id="username-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-click>
-      <h2>Pick a username!</h2>
-      <paper-input id="username-input"
-        label="Username"
-        value="{{username}}"
-        error-message="Sorry, that username is taken!"
-        on-keydown="onUsernameKeyDown"></paper-input>
+    <!-- Login Dialog -->
+    <paper-dialog id="login-dialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
+      <div id="login-dialog-header">
+        <h1>eChat</h1>
+        <div>v0.2.0</div>
+      </div>
+      <div>
+        <paper-input id="username-input"
+          class="login-input"
+          label="Username"
+          value="{{username}}"
+          error-message="Sorry, that username is taken!"></paper-input>
+        <paper-input id="password-input"
+          class="login-input"
+          type="password"
+          label="Password"
+          value="{{password}}"></paper-input>
+      </div>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="connectSocket">Connect</paper-button>
+        <paper-button id="username-submit-button" on-click="connectSocket">Login</paper-button>
       </div>
     </paper-dialog>
 
-    <paper-dialog id="error-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-click>
+    <!-- Error/Connection Dialog -->
+    <paper-dialog id="error-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
       <h2>{{errorMessage}}</h2>
     </paper-dialog>
 
+    <!-- App -->
     <paper-material id="element-paper" elevation="1">
 
-      <div class="messaging-wrapper">
+      <!-- Left hand side -->
+      <div id="messaging-wrapper">
         <!-- Message List -->
         <iron-list id="message-list" items="[[messageList]]" as="item">
           <template>
@@ -133,13 +152,14 @@
           </template>
         </iron-list>
 
+        <!-- Custom message input -->
         <message-input></message-input>
 
       </div>
 
       <!-- Online User List -->
       <div id="user-list">
-        <div class="header-panel-title">
+        <div id="header-panel-title">
           <div id="header-panel-secondary-title-wrapper">
             <div>Online</div>
             <div id="header-panel-secondary-title" hidden$="[[!currentUser]]">as {{currentUser}}</div>
@@ -152,6 +172,7 @@
           </template>
         </iron-list>
       </div>
+
     </paper-material>
 
   </template>
@@ -211,19 +232,14 @@
         'submit-message': 'submitMessage'
       },
 
-      // When the username-submit-button is pressed, add the user
-      addUser: function() {
-        var _this = this;
-        _this.socket.emit('new user', _this.username, function(data) {
-          // If the username is valid...
-          if(data) {
-            _this.currentUser = _this.username;
-            _this.$['username-dialog'].close();
-          } else {
-            // Warn the user of the invalid username
-            _this.$['username-input'].invalid = true;
-          }
-        });
+      // element lifecycle
+      attached: function() {
+        this.onAttached();
+      },
+
+      onAttached: function() {
+        // Open the username dialog to retrieve username
+        this.$['login-dialog'].open();
       },
 
       // When username is changed, ensure the username-input is not invalid
@@ -240,32 +256,19 @@
         }
       },
 
-      // Send the message to the server
-      submitMessage: function(e) {
-        this.socket.emit('send message', e.detail.message, function(entry) {
-          // Append an error status to the message data if the send failed
-          entry.error = true;
-          _this.push('messageList', {
-            index: entry.ts,
-            data: entry
-          });
+      // When the username-submit-button is pressed, add the user
+      addUser: function() {
+        var _this = this;
+        _this.socket.emit('new user', _this.username, function(data) {
+          // If the username is valid...
+          if(data) {
+            _this.currentUser = _this.username;
+            _this.$['login-dialog'].close();
+          } else {
+            // Warn the user of the invalid username
+            _this.$['username-input'].invalid = true;
+          }
         });
-      },
-
-      // Scroll to the most recent message
-      scrollToLastMessage: function() {
-        this.$['message-list'].scrollToIndex(this.newestMessageIdx);
-      },
-      // TODO: Fire an iron-list resize when element is ready
-
-      // element lifecycle
-      attached: function() {
-        this.onAttached();
-      },
-
-      onAttached: function() {
-        // Open the username dialog to retrieve username
-        this.$['username-dialog'].open();
       },
 
       // Create a socket aided connection to the server, and setup callbacks
@@ -398,7 +401,24 @@
         this.loaded = false;
         this.currentUser = '';
 
-        this.$['username-dialog'].open();
+        this.$['login-dialog'].open();
+      },
+
+      // Send the message to the server
+      submitMessage: function(e) {
+        this.socket.emit('send message', e.detail.message, function(entry) {
+          // Append an error status to the message data if the send failed
+          entry.error = true;
+          _this.push('messageList', {
+            index: entry.ts,
+            data: entry
+          });
+        });
+      },
+
+      // Scroll to the most recent message
+      scrollToLastMessage: function() {
+        this.$['message-list'].scrollToIndex(this.newestMessageIdx);
       }
     });
 

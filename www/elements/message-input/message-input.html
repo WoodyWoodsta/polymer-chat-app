@@ -106,8 +106,11 @@
       onMessageChange: function() {
         // enable send button
         var newMessage = this.message.replace(/^\s+/g, '');
+        console.log(newMessage);
         if (newMessage !== '') {
-          this.$.send.disabled = (this.message === '');
+          this.$.send.disabled = false;
+        } else {
+          this.$.send.disabled = true;
         }
 
       },

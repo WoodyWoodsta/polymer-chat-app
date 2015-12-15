@@ -4,6 +4,7 @@ import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaStatic from 'koa-static';
 import responseTime from 'koa-response-time';
+import { router } from './routes';
 import http from 'http';
 import https from 'https';
 
@@ -24,6 +25,7 @@ Object.defineProperty(app, 'io', {
 // middlewares
 app.use(responseTime());
 app.use(koaBody());
+app.use(router());
 app.use(koaStatic(process.cwd() + '/www'));
 
 // quick hack to load config

@@ -4,7 +4,6 @@ import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaStatic from 'koa-static';
 import responseTime from 'koa-response-time';
-import koaRouter from 'koa-router';
 import http from 'http';
 import https from 'https';
 
@@ -12,6 +11,7 @@ import io from 'socket.io';
 import { readFileSync } from 'fs';
 
 import createIOServer from './io-server';
+import router from './routes';
 
 // KoaJS app
 const app = new Koa();
@@ -25,7 +25,8 @@ Object.defineProperty(app, 'io', {
 // middlewares
 app.use(responseTime());
 app.use(koaBody());
-
+// create routes
+app.use(router());
 app.use(koaStatic(process.cwd() + '/www'));
 
 // quick hack to load config
@@ -50,6 +51,7 @@ app.io.attach(server);
 
 // create io server
 createIOServer(app);
+
 
 // listen
 console.log();

@@ -219,12 +219,23 @@
         },
         currentUser: {
           type: String,
-          value: ''
+          value: null
         },
         newestMessageIdx: Number,
         wasDisconnected: {
           type: Boolean,
           value: false
+        },
+        username: {
+          type: String,
+          value: null
+        },
+        password: {
+          type: String,
+          value: null
+        },
+        errorMessage: {
+          type: String,
         }
       },
 
@@ -239,13 +250,13 @@
 
       onAttached: function() {
         // Open the username dialog to retrieve username
-        this.$['login-dialog'].open();
+        this.$$('#login-dialog').open();
       },
 
       // When username is changed, ensure the username-input is not invalid
       onUsernameChange: function() {
-        if (this.$['username-input'].invalid) {
-          this.$['username-input'].invalid = false;
+        if (this.$$('#username-input').invalid) {
+          this.$$('#username-input').invalid = false;
         }
       },
 
@@ -257,16 +268,16 @@
       },
 
       // When the username-submit-button is pressed, add the user
-      addUser: function() {
+      requestLogin: function() {
         var _this = this;
         _this.socket.emit('new user', _this.username, function(data) {
           // If the username is valid...
           if(data) {
             _this.currentUser = _this.username;
-            _this.$['login-dialog'].close();
+            _this.$$('#login-dialog').close();
           } else {
             // Warn the user of the invalid username
-            _this.$['username-input'].invalid = true;
+            _this.$$('#username-input').invalid = true;
           }
         });
       },
@@ -294,7 +305,7 @@
 
           // If in fact the connection has been restored, close the dialog
           if (_this.socket.connected) {
-            _this.$['error-dialog'].close();
+            _this.$$('#error-dialog').close();
           }
         });
 
@@ -383,13 +394,13 @@
         // Notify the user when the server disconnects
         _this.socket.on('disconnect', function() {
           if (!_this.wasDisconnected) {
-            _this.errorMessage = 'Server disconnected'; // TODO: Think of a better message here
-            _this.$['error-dialog'].open();
+            _this.errorMessage = 'Server is down!';
+            _this.$$('#error-dialog').open();
           }
         });
 
         // Finally, add the user
-        _this.addUser();
+        _this.requestLogin();
       },
 
       // Disconnect the user
@@ -401,7 +412,7 @@
         this.loaded = false;
         this.currentUser = '';
 
-        this.$['login-dialog'].open();
+        this.$$('#login-dialog').open();
       },
 
       // Send the message to the server
@@ -418,7 +429,7 @@
 
       // Scroll to the most recent message
       scrollToLastMessage: function() {
-        this.$['message-list'].scrollToIndex(this.newestMessageIdx);
+        this.$$('#message-list').scrollToIndex(this.newestMessageIdx);
       }
     });
 

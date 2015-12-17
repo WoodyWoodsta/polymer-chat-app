@@ -35,7 +35,8 @@ export default function init(app) {
             FOR m IN Messages
             SORT m.ts DESC
             LIMIT 100
-            RETURN {msg: m.msg, nick: m.nick, ts: m.ts}`)
+            RETURN {msg: m.msg, nick: m.nick, ts: m.ts}
+          `)
           .then(data => {
             app.io.sockets.emit('load old msgs', data);
           })

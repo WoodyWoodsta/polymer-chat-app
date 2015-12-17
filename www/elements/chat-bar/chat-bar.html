@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 <!-- paper-elements -->
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
@@ -111,6 +112,12 @@
         }
       }
     </style>
+
+    <!-- HTTP Interface -->
+    <iron-ajax
+      url="http://localhost:3000/login"
+      handle-as="json"
+      on-response="loginResponse"></iron-ajax>
 
     <!-- Login Dialog -->
     <paper-dialog id="login-dialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>

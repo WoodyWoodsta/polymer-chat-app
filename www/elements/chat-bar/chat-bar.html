@@ -115,10 +115,12 @@
 
     <!-- HTTP Interface -->
     <iron-ajax id="login-ajax"
-      url="http://localhost:3000/login"
+      url="http://0.0.0.0:3000/login"
       method="POST"
+      content-type="application/json"
       handle-as="json"
-      on-response="loginResponse"></iron-ajax>
+      on-response="loginResponse"
+      last-response="{{loginResponseBody}}"></iron-ajax>
 
     <!-- Login Dialog -->
     <paper-dialog id="login-dialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
@@ -242,6 +244,7 @@
           type: String,
           value: null
         },
+        lastReponseBody: String,
         errorMessage: {
           type: String,
         }
@@ -278,21 +281,11 @@
       // When the username-submit-button is pressed, add the user
       requestLogin: function() {
         this.$$('#login-ajax').body = {
-          username: this.username,
-          password: this.password
+          "username": this.username,
+          "password": this.password
         };
         this.$$('#login-ajax').generateRequest();
         // var _this = this;
-        // _this.socket.emit('new user', _this.username, function(data) {
-        //   // If the username is valid...
-        //   if(data) {
-        //     _this.currentUser = _this.username;
-        //     _this.$$('#login-dialog').close();
-        //   } else {
-        //     // Warn the user of the invalid username
-        //     _this.$$('#username-input').invalid = true;
-        //   }
-        // });
       },
 
       // Create a socket aided connection to the server, and setup callbacks
@@ -377,6 +370,7 @@
           });
 
           // Only scroll to the bottom if it is the user's message
+          // TODO: Scroll down if the last message has been viewed! (difficulty level: hmmmm)
           if (entry.isOwner) {
             _this.scrollToLastMessage();
           }
@@ -446,7 +440,24 @@
       },
 
       loginResponse: function (e) {
+        var _this = this;
         console.log('Response received');
+        if (e.type === 'response') {
+          if (_this.loginResponseBody.error) {
+            console.log(_this.loginResponse.errorMessage);
+          } else {
+            _this.socket.emit('new user', _this.loginResponseBody.user, function(data) {
+              // If the username is valid...
+              if(data) {
+                _this.currentUser = _this.loginResponseBody.user;
+                _this.$$('#login-dialog').close();
+              } else {
+                // Warn the user of the invalid username
+                _this.$$('#username-input').invalid = true;
+              }
+            });
+          }
+        }
       }
 
     });

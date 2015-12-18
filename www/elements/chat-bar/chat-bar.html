@@ -114,8 +114,9 @@
     </style>
 
     <!-- HTTP Interface -->
-    <iron-ajax
+    <iron-ajax id="login-ajax"
       url="http://localhost:3000/login"
+      method="POST"
       handle-as="json"
       on-response="loginResponse"></iron-ajax>
 
@@ -276,17 +277,22 @@
 
       // When the username-submit-button is pressed, add the user
       requestLogin: function() {
-        var _this = this;
-        _this.socket.emit('new user', _this.username, function(data) {
-          // If the username is valid...
-          if(data) {
-            _this.currentUser = _this.username;
-            _this.$$('#login-dialog').close();
-          } else {
-            // Warn the user of the invalid username
-            _this.$$('#username-input').invalid = true;
-          }
-        });
+        this.$$('#login-ajax').body = {
+          username: this.username,
+          password: this.password
+        };
+        this.$$('#login-ajax').generateRequest();
+        // var _this = this;
+        // _this.socket.emit('new user', _this.username, function(data) {
+        //   // If the username is valid...
+        //   if(data) {
+        //     _this.currentUser = _this.username;
+        //     _this.$$('#login-dialog').close();
+        //   } else {
+        //     // Warn the user of the invalid username
+        //     _this.$$('#username-input').invalid = true;
+        //   }
+        // });
       },
 
       // Create a socket aided connection to the server, and setup callbacks
@@ -437,7 +443,12 @@
       // Scroll to the most recent message
       scrollToLastMessage: function() {
         this.$$('#message-list').scrollToIndex(this.newestMessageIdx);
+      },
+
+      loginResponse: function (e) {
+        console.log('Response received');
       }
+
     });
 
   </script>

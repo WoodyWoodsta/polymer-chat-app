@@ -8,6 +8,7 @@ const dbQueries = new DBQueries();
 const koaRouter = new Router();
 
 koaRouter.post('/login', function*(/*next*/){
+  console.log('[login] - Request recieved');
   // check if there is a body
   // check if input is valid
   // get usernames and passwords

@@ -141,7 +141,7 @@
           value="{{password}}"></paper-input>
       </div>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="connectSocket">Login</paper-button>
+        <paper-button id="username-submit-button" on-click="requestLogin">Login</paper-button>
       </div>
     </paper-dialog>
 
@@ -244,6 +244,7 @@
           type: String,
           value: null
         },
+        loginId: String,
         lastReponseBody: String,
         errorMessage: {
           type: String,
@@ -280,12 +281,13 @@
 
       // When the username-submit-button is pressed, add the user
       requestLogin: function() {
+        this.currentUser = this.username;
         this.$$('#login-ajax').body = {
           "username": this.username,
-          "password": this.password
+          "password": this.password,
+          "socketId": this.socket.id
         };
         this.$$('#login-ajax').generateRequest();
-        // var _this = this;
       },
 
       // Create a socket aided connection to the server, and setup callbacks
@@ -306,6 +308,7 @@
         _this.socket.on('connect', function() {
           // Only resend the username to the server if we connected once before
           if (loaded) {
+            // TODO: Post a reconnect using http
             _this.socket.emit('restore user', _this.currentUser);
           }
 
@@ -406,8 +409,7 @@
           }
         });
 
-        // Finally, add the user
-        _this.requestLogin();
+        _this.async(_this.requestLogin, 200);
       },
 
       // Disconnect the user
@@ -441,23 +443,18 @@
 
       loginResponse: function (e) {
         var _this = this;
-        console.log('Response received');
+        console.log('[chat-bar] - Response received');
+
+        // Check for reponse, and for any errors
         if (e.type === 'response') {
           if (_this.loginResponseBody.error) {
             console.log(_this.loginResponse.errorMessage);
           } else {
-            _this.socket.emit('new user', _this.loginResponseBody.user, function(data) {
-              // If the username is valid...
-              if(data) {
-                _this.currentUser = _this.loginResponseBody.user;
-                _this.$$('#login-dialog').close();
-              } else {
-                // Warn the user of the invalid username
-                _this.$$('#username-input').invalid = true;
-              }
-            });
+            _this.loginId = _this.socket.id;
+            _this.$$('#login-dialog').close();
           }
         }
+
       }
 
     });

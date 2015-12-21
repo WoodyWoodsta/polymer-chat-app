@@ -36,6 +36,8 @@
         --element-light-transparent-color: var(rgba(255,255,255,.7));
         --element-paper-color: var(--ext-element-paper-color, #FAFAFA);
 
+        --error-color: rgb(187,40,40);
+
         @apply(--layout);
         @apply(--layout-flex-auto);
 
@@ -106,6 +108,10 @@
         margin-bottom: 5px;
       }
 
+      #login-error {
+        color: var(--error-color);
+      }
+
       @media (max-width: 520px) {
         #user-list {
           display: none;
@@ -137,6 +143,7 @@
         <div>v0.2.0</div>
       </div>
       <div>
+        <div id="login-error" hidden>[[loginErrorMessage]]</div>
         <paper-input id="username-input"
           class="login-input"
           label="Username"
@@ -255,7 +262,8 @@
         loginId: String,
         errorMessage: {
           type: String,
-        }
+        },
+        loginErrorMessage: String
       },
 
       listeners: {
@@ -452,16 +460,26 @@
       },
 
       loginResponse: function (e) {
-        var _this = this;
+        // var _this = this;
         console.log('[chat-bar] - Response received');
 
         // Check for reponse, and for any errors
         if (e.type === 'response') {
-          if (_this.loginResponseBody.error) {
-            console.log(_this.loginResponse.errorMessage);
+          if (this.loginResponseBody.error) {
+            console.log(this.loginResponseBody.errorMessage);
+            if (this.loginResponseBody.errorCode === -2) {
+              this.username = '';
+              this.password = '';
+              this.loginErrorMessage = 'Whoops - try again!';
+              this.$$('#login-error').hidden = false;
+            }
+
           } else {
-            _this.loginId = _this.socket.id;
-            _this.$$('#login-dialog').close();
+            this.loginId = this.socket.id;
+            this.username = '';
+            this.password = '';
+            this.$$('#login-error').hidden = false;
+            this.$$('#login-dialog').close();
           }
         }
 

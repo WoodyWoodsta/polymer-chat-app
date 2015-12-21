@@ -50,7 +50,7 @@ koaRouter.post('/login', function*(/*next*/) {
             console.log('[login] - Existing user logged in');
             return updateId(username, socketId);
           } else {
-            return {error: true, errorMessage: 'Incorrect details'};
+            return {error: true, errorCode: -2, errorMessage: 'Incorrect details'};
           }
 
         // If the username is not found, add it to the DB
@@ -85,7 +85,7 @@ koaRouter.post('/login', function*(/*next*/) {
    // yield *next;
    // Respond with invalid request if there is neither of the required keys
    console.log('[login] - Request invalid');
-   this.body = {error: true, errorMessage: 'Invalid request'};
+   this.body = {error: true, errorCode: -1, errorMessage: 'Invalid request'};
    this.status = 400;
   }
 });
@@ -115,7 +115,7 @@ koaRouter.post('/reconnect', function*(/*next*/) {
 
             return updateId(username, newSocketId);
           } else {
-            return {error: true, errorMessage: 'No id match'};
+            return {error: true, errorCode: -3, errorMessage: 'No id match'};
           }
         }
       })
@@ -129,7 +129,7 @@ koaRouter.post('/reconnect', function*(/*next*/) {
    // yield *next;
    // Respond with invalid request if there is neither of the required keys
    console.log('[login] - Request invalid');
-   this.body = {error: true, errorMessage: 'Invalid request'};
+   this.body = {error: true, errorCode: -1, errorMessage: 'Invalid request'};
    this.status = 400;
   }
 });

@@ -14,7 +14,7 @@ function updateId(username, socketId) {
     .query(`
       FOR user in Users
       FILTER LOWER(user.username) == LOWER('${username}')
-      UPDATE { _key: user._key, username: user.username, password: user.password, id: '${socketId}'} in Users
+      UPDATE { _key: user._key, id: '${socketId}'} in Users
     `)
     .then (results => {
       return {error: false, user: username};
@@ -29,13 +29,6 @@ function updateId(username, socketId) {
 koaRouter.post('/login', function*(/*next*/) {
   console.log('[login] - Login request recieved');
   console.log(JSON.stringify(this.request.body));
-  // check if there is a body
-  // check if input is valid
-  // get usernames and passwords
-  // check if in ArangoDB
-  // if it is:
-  //          check if password is correct
-  // else add to database
 
   let {username, password, socketId} = this.request.body || {};
 
@@ -70,7 +63,7 @@ koaRouter.post('/login', function*(/*next*/) {
             `)
             .then(results => {
               let user = results[0];
-              ioServer.addUser({username: username, id: socketId});
+              ioServer.addUser({nickname: username, id: socketId});
 
               console.log('[login] - New user logged in');
               return {error: false, user: user.username};

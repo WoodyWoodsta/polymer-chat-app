@@ -149,7 +149,7 @@
           value="{{password}}"></paper-input>
       </div>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="requestLogin">Login</paper-button>
+        <paper-button id="username-submit-button" on-click="connectSocket">Login</paper-button>
       </div>
     </paper-dialog>
 
@@ -290,9 +290,9 @@
       requestLogin: function() {
         this.currentUser = this.username;
         this.$$('#login-ajax').body = {
-          "username": this.username,
-          "password": this.password,
-          "socketId": this.socket.id
+          username: this.username,
+          password: this.password,
+          socketId: this.socket.id
         };
         this.$$('#login-ajax').generateRequest();
       },
@@ -316,9 +316,9 @@
           // Only resend the username to the server if we connected once before
           if (loaded) {
             _this.$$('#reconnect-ajax').body = {
-              "username": _this.currentUser,
-              "oldSocketId": _this.loginId,
-              "newSocketId": _this.socket.id
+              username: _this.currentUser,
+              oldSocketId: _this.loginId,
+              newSocketId: _this.socket.id
             };
             _this.$$('#reconnect-ajax').generateRequest();
           }

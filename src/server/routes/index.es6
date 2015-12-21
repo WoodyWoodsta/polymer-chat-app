@@ -97,65 +97,49 @@ koaRouter.post('/login', function*(/*next*/) {
   }
 });
 
-// koaRouter.post('/reconnect', function*(/*next*/) {
-//   console.log('[login] - Reconnect request recieved');
-//   console.log(JSON.stringify(this.request.body));
-//
-//   let {username, oldSocketID, newSocketId} = this.request.body || {};
-//
-//   if (username && oldSocketID && newSocketId) {
-//     this.body = yield dbQueries
-//
-//       // Grab the user from the DB
-//       .query(`
-//         FOR user in Users
-//         FILTER LOWER(user.username) == LOWER('${username}')
-//         RETURN {username: user.username, socketId: user.socketId}
-//       `)
-//       .then(results => {
-//         if (results.length) {
-//           let user = results[0];
-//
-//           // Verify that the password is correct
-//           if (user.password === password) {
-//             ioServer.addUser({nickname: username, id: socketId});
-//             console.log('[login] - Existing user logged in');
-//             return {error: false, user: user.username};
-//           } else {
-//             return {error: true, errorMessage: 'Incorrect details'};
-//           }
-//
-//         // If the username is not found, add it to the DB
-//         // TODO: Confirm with the user about adding to the DB
-//         } else {
-//           return dbQueries
-//             .query(`
-//               INSERT {username: '${username}', password: '${password}'} INTO Users
-//               RETURN NEW
-//             `)
-//             .then(results => {
-//               let user = results[0];
-//               ioServer.addUser({username: username, id: socketId});
-//
-//               console.log('[login] - New user logged in');
-//               return {error: false, user: user.username};
-//             });
-//         }
-//       })
-//       .catch(error => {
-//         // Log and return the error if there is one
-//         console.log('[login] - Error: ' + error);
-//         return error;
-//       });
-//
-//   } else {
-//    // yield *next;
-//    // Respond with invalid request if there is neither of the required keys
-//    console.log('[login] - Request invalid');
-//    this.body = {error: true, errorMessage: 'Invalid request'};
-//    this.status = 400;
-//   }
-// });
+koaRouter.post('/reconnect', function*(/*next*/) {
+  console.log('[login] - Reconnect request recieved');
+  console.log(JSON.stringify(this.request.body));
+
+  let {username, oldSocketId, newSocketId} = this.request.body || {};
+
+  if (username && oldSocketId && newSocketId) {
+    this.body = yield dbQueries
+      // Grab the user from the DB
+      .query(`
+        FOR user in Users
+        FILTER LOWER(user.username) == LOWER('${username}')
+        RETURN {username: user.username, socketId: user.id}
+      `)
+      .then(results => {
+        if (results.length) {
+          let user = results[0];
+
+          // Verify that the id is correct
+          if (user.socketId === oldSocketId) {
+            ioServer.addUser({nickname: username, id: newSocketId});
+            console.log('[login] - Existing user reconnected');
+
+            return updateId(username, newSocketId);
+          } else {
+            return {error: true, errorMessage: 'No id match'};
+          }
+        }
+      })
+      .catch(error => {
+        // Log and return the error if there is one
+        console.log('[login] - Reconnection error: ' + error);
+        return error;
+      });
+
+  } else {
+   // yield *next;
+   // Respond with invalid request if there is neither of the required keys
+   console.log('[login] - Request invalid');
+   this.body = {error: true, errorMessage: 'Invalid request'};
+   this.status = 400;
+  }
+});
 
 export function router() {
   return koaRouter.middleware();

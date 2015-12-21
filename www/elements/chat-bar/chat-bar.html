@@ -122,6 +122,14 @@
       on-response="loginResponse"
       last-response="{{loginResponseBody}}"></iron-ajax>
 
+    <iron-ajax id="reconnect-ajax"
+      url="http://0.0.0.0:3000/reconnect"
+      method="POST"
+      content-type="application/json"
+      handle-as="json"
+      on-response="reconnectResponse"
+      last-response="{{reconnectResponseBody}}"></iron-ajax>
+
     <!-- Login Dialog -->
     <paper-dialog id="login-dialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
       <div id="login-dialog-header">
@@ -245,7 +253,6 @@
           value: null
         },
         loginId: String,
-        lastReponseBody: String,
         errorMessage: {
           type: String,
         }
@@ -308,8 +315,12 @@
         _this.socket.on('connect', function() {
           // Only resend the username to the server if we connected once before
           if (loaded) {
-            // TODO: Post a reconnect using http
-            _this.socket.emit('restore user', _this.currentUser);
+            _this.$$('#reconnect-ajax').body = {
+              "username": _this.currentUser,
+              "oldSocketId": _this.loginId,
+              "newSocketId": _this.socket.id
+            };
+            _this.$$('#reconnect-ajax').generateRequest();
           }
 
           // If in fact the connection has been restored, close the dialog
@@ -382,8 +393,7 @@
         // Place into the message list a notification of a new user
         _this.socket.on('user notification', function(data) {
           // Only do this if the message list has been loaded
-          if (loaded) {
-            data.isOwner = (data.nick === _this.currentUser);
+          if (loaded && !(data.nick === _this.currentUser)) {
             data.userNotification = true;
 
             // Formulate the message that will display
@@ -442,6 +452,22 @@
       },
 
       loginResponse: function (e) {
+        var _this = this;
+        console.log('[chat-bar] - Response received');
+
+        // Check for reponse, and for any errors
+        if (e.type === 'response') {
+          if (_this.loginResponseBody.error) {
+            console.log(_this.loginResponse.errorMessage);
+          } else {
+            _this.loginId = _this.socket.id;
+            _this.$$('#login-dialog').close();
+          }
+        }
+
+      },
+
+      reconnectResponse: function (e) {
         var _this = this;
         console.log('[chat-bar] - Response received');
 

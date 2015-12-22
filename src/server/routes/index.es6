@@ -8,6 +8,7 @@ const dbQueries = new DBQueries();
 // Koa router
 const koaRouter = new Router();
 
+// Update the database user entry with the currently used socket id
 function updateId(username, socketId) {
   // Record the socketId of the verified user
   return dbQueries
@@ -28,7 +29,6 @@ function updateId(username, socketId) {
 
 koaRouter.post('/login', function*(/*next*/) {
   console.log('[login] - Login request recieved');
-  console.log(JSON.stringify(this.request.body));
 
   let {username, password, socketId} = this.request.body || {};
 
@@ -92,7 +92,6 @@ koaRouter.post('/login', function*(/*next*/) {
 
 koaRouter.post('/reconnect', function*(/*next*/) {
   console.log('[login] - Reconnect request recieved');
-  console.log(JSON.stringify(this.request.body));
 
   let {username, oldSocketId, newSocketId} = this.request.body || {};
 

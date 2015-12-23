@@ -165,6 +165,17 @@
       <h2>{{errorMessage}}</h2>
     </paper-dialog>
 
+    <!-- New User Confirmation Dialog -->
+    <paper-dialog id="confirmationDialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
+      <div class="header">
+        <h2>Are you sure you want to add a new user?</h2>
+      </div>
+      <div class="buttons">
+        <paper-button id="confirm" on-click="userConfirmation">Yes</paper-button>
+        <paper-button id="back" on-click="disconnectSocket">No</paper-button>
+      </div>
+    </paper-dialog>
+
     <!-- App -->
     <paper-material id="elementPaper" elevation="1">
 
@@ -296,14 +307,21 @@
       },
 
       // When the username-submit-button is pressed, add the user
-      requestLogin: function() {
+      requestLogin: function(addNewUser) {
         this.currentUser = this.username;
         this.$.loginAjax.body = {
           username: this.username,
           password: this.password,
-          socketId: this.socket.id
+          socketId: this.socket.id,
+          addNewUser: !!addNewUser
         };
         this.$.loginAjax.generateRequest();
+      },
+
+      // add new user on yes button press
+      userConfirmation: function() {
+        this.requestLogin(true);
+        this.$.confirmationDialog.close();
       },
 
       // Create a socket aided connection to the server, and setup callbacks
@@ -445,6 +463,12 @@
       // Disconnect the user
       disconnectSocket: function() {
         // Disconnect the socket
+        if(this.$.confirmationDialog) {
+          this.$.confirmationDialog.close();
+          this.username = '';
+          this.password = '';
+        }
+
         this.wasDisconnected = true;
         this.socket.close();
         this.socket = null;
@@ -486,6 +510,10 @@
 
               this.loginErrorMessage = 'Whoops - try again!';
               this.$.loginError.hidden = false;
+            }
+            else if(this.loginResponseBody.errorCode === -3) {
+              this.$.confirmationDialog.open();
+              this.$.loginError.hidden = true;
             }
 
           } else {

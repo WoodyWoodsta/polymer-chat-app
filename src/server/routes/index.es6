@@ -30,7 +30,7 @@ function updateId(username, socketId) {
 koaRouter.post('/login', function*(/*next*/) {
   console.log('[login] - Login request recieved');
 
-  let {username, password, socketId} = this.request.body || {};
+  let {username, password, socketId, addNewUser} = this.request.body || {};
 
   if (username && password && socketId) {
     this.body = yield dbQueries
@@ -53,26 +53,30 @@ koaRouter.post('/login', function*(/*next*/) {
             return {error: true, errorCode: -2, errorMessage: 'Incorrect details'};
           }
 
-        // If the username is not found, add it to the DB
-        // TODO: Confirm with the user about adding to the DB
+        // If the username is not found, add it to the DB if confirmation is granted
         } else {
-          return dbQueries
-            .query(`
-              INSERT {username: '${username}', password: '${password}', id: '${socketId}'} INTO Users
-              RETURN NEW
-            `)
-            .then(results => {
-              let user = results[0];
-              ioServer.addUser({nickname: username, id: socketId});
+          if (addNewUser) {
+            return dbQueries
+              .query(`
+                INSERT {username: '${username}', password: '${password}', id: '${socketId}'} INTO Users
+                RETURN NEW
+              `)
+              .then(results => {
+                let user = results[0];
+                ioServer.addUser({nickname: username, id: socketId});
 
-              console.log('[login] - New user logged in');
-              return {error: false, user: user.username};
-            })
-            .catch(error => {
-              // Log and return the error if there is one
-              console.log('[login] - User insertion error: ' + error);
-              return error;
-            });
+                console.log('[login] - New user logged in');
+                return {error: false, user: user.username};
+              })
+              .catch(error => {
+                // Log and return the error if there is one
+                console.log('[login] - User insertion error: ' + error);
+                return error;
+              });
+          } else {
+            // return error to get confirmation of adding a new user
+            return {error: true, errorCode: -3, errorMessage: 'New user confirmation required'};
+          }
         }
       })
       .catch(error => {

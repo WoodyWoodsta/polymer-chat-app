@@ -45,7 +45,7 @@
         font-family: 'Roboto', sans-serif;
       }
 
-      #element-paper {
+      #elementPaper {
         @apply(--layout-flex);
         @apply(--layout-horizontal);
         overflow: hidden;
@@ -53,7 +53,7 @@
         background-color: var(--element-paper-color);
       }
 
-      #messaging-wrapper {
+      #messagingWrapper {
         @apply(--layout-vertical);
         @apply(--layout-flex);
       }
@@ -62,7 +62,7 @@
         padding: 15px;
       }
 
-      #message-list {
+      #messageList {
         @apply(--layout-flex);
         color: var(--element-dark-color);
       }
@@ -71,7 +71,7 @@
         flex-grow: 0;
       }
 
-      #header-panel-title {
+      #headerPanelTitle {
         @apply(--layout-horizontal);
         padding: 10px;
         padding-left: 15px;
@@ -81,17 +81,17 @@
         font-weight: bold;
       }
 
-      #header-panel-secondary-title {
+      #headerPanelSecondaryTitle {
         font-size: 10pt;
         font-weight: 400;
         font-style: italic;
       }
 
-      #header-panel-secondary-title-wrapper {
+      #headerPanelSecondaryTitleWrapper {
         @apply(--layout-flex);
       }
 
-      #user-list {
+      #userList {
         width: 200px;
         border-bottom-right-radius: var(--element-border-radius);
         border-top-right-radius: var(--element-border-radius);
@@ -99,28 +99,28 @@
         color: var(--element-dark-color);
       }
 
-      #user-item {
+      #userItem {
         font-size: 10pt;
       }
 
-      #login-dialog-header > h1 {
+      #loginDialogHeader > h1 {
         font-family: monospace;
         margin-bottom: 5px;
       }
 
-      #login-error {
+      #loginError {
         color: var(--error-color);
       }
 
       @media (max-width: 520px) {
-        #user-list {
+        #userList {
           display: none;
         }
       }
     </style>
 
     <!-- HTTP Interface -->
-    <iron-ajax id="login-ajax"
+    <iron-ajax id="loginAjax"
       url="http://0.0.0.0:3000/login"
       method="POST"
       content-type="application/json"
@@ -128,7 +128,7 @@
       on-response="loginResponse"
       last-response="{{loginResponseBody}}"></iron-ajax>
 
-    <iron-ajax id="reconnect-ajax"
+    <iron-ajax id="reconnectAjax"
       url="http://0.0.0.0:3000/reconnect"
       method="POST"
       content-type="application/json"
@@ -137,41 +137,41 @@
       last-response="{{reconnectResponseBody}}"></iron-ajax>
 
     <!-- Login Dialog -->
-    <paper-dialog id="login-dialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
-      <div id="login-dialog-header">
+    <paper-dialog id="loginDialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
+      <div id="loginDialogHeader">
         <h1>eChat</h1>
         <div>v0.2.0</div>
       </div>
       <div>
-        <div id="login-error" hidden>[[loginErrorMessage]]</div>
-        <paper-input id="username-input"
+        <div id="loginError" hidden>[[loginErrorMessage]]</div>
+        <paper-input id="usernameInput"
           class="login-input"
           label="Username"
           value="{{username}}"
           error-message="Sorry, that username is taken!"></paper-input>
-        <paper-input id="password-input"
+        <paper-input id="passwordInput"
           class="login-input"
           type="password"
           label="Password"
           value="{{password}}"></paper-input>
       </div>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="connectSocket">Login</paper-button>
+        <paper-button id="usernameSubmitButton" on-click="connectSocket">Login</paper-button>
       </div>
     </paper-dialog>
 
     <!-- Error/Connection Dialog -->
-    <paper-dialog id="error-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
+    <paper-dialog id="errorDialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
       <h2>{{errorMessage}}</h2>
     </paper-dialog>
 
     <!-- App -->
-    <paper-material id="element-paper" elevation="1">
+    <paper-material id="elementPaper" elevation="1">
 
       <!-- Left hand side -->
-      <div id="messaging-wrapper">
+      <div id="messagingWrapper">
         <!-- Message List -->
-        <iron-list id="message-list" items="[[messageList]]" as="item">
+        <iron-list id="messageList" items="[[messageList]]" as="item">
           <template>
             <message-item data="[[item.data]]" message></message-item>
           </template>
@@ -183,17 +183,17 @@
       </div>
 
       <!-- Online User List -->
-      <div id="user-list">
-        <div id="header-panel-title">
-          <div id="header-panel-secondary-title-wrapper">
+      <div id="userList">
+        <div id="headerPanelTitle">
+          <div id="headerPanelSecondaryTitleWrapper">
             <div>Online</div>
-            <div id="header-panel-secondary-title" hidden$="[[!currentUser]]">as {{currentUser}}</div>
+            <div id="headerPanelSecondaryTitle" hidden$="[[!currentUser]]">as {{currentUser}}</div>
           </div>
-          <paper-icon-button id="logout-button" icon="icons:power-settings-new" on-click="disconnectSocket"></paper-icon-button>
+          <paper-icon-button id="logoutButton" icon="icons:power-settings-new" on-click="disconnectSocket"></paper-icon-button>
         </div>
         <iron-list items="[[userList]]" as="item">
           <template>
-            <div id="user-item">[[item.data.user]]</div>
+            <div id="userItem">[[item.data.user]]</div>
           </template>
         </iron-list>
       </div>
@@ -278,13 +278,13 @@
 
       onAttached: function() {
         // Open the username dialog to retrieve username
-        this.$$('#login-dialog').open();
+        this.$.loginDialog.open();
       },
 
       // When username is changed, ensure the username-input is not invalid
       onUsernameChange: function() {
-        if (this.$$('#username-input').invalid) {
-          this.$$('#username-input').invalid = false;
+        if (this.$.usernameInput.invalid) {
+          this.$.usernameInput.invalid = false;
         }
       },
 
@@ -298,12 +298,12 @@
       // When the username-submit-button is pressed, add the user
       requestLogin: function() {
         this.currentUser = this.username;
-        this.$$('#login-ajax').body = {
+        this.$.loginAjax.body = {
           username: this.username,
           password: this.password,
           socketId: this.socket.id
         };
-        this.$$('#login-ajax').generateRequest();
+        this.$.loginAjax.generateRequest();
       },
 
       // Create a socket aided connection to the server, and setup callbacks
@@ -334,17 +334,17 @@
         _this.socket.on('connect', function() {
           // Only resend the username to the server if we connected once before
           if (_this.loaded) {
-            _this.$$('#reconnect-ajax').body = {
+            _this.$.reconnectAjax.body = {
               username: _this.currentUser,
               oldSocketId: _this.loginId,
               newSocketId: _this.socket.id
             };
-            _this.$$('#reconnect-ajax').generateRequest();
+            _this.$.reconnectAjax.generateRequest();
           }
 
           // If in fact the connection has been restored, close the dialog
           if (_this.socket.connected) {
-            _this.$$('#error-dialog').close();
+            _this.$.errorDialog.close();
           }
         });
 
@@ -434,7 +434,7 @@
         _this.socket.on('disconnect', function() {
           if (!_this.wasDisconnected) {
             _this.errorMessage = 'Server is down!';
-            _this.$$('#error-dialog').open();
+            _this.$.errorDialog.open();
           }
         });
 
@@ -451,7 +451,7 @@
         this.loaded = false;
         this.currentUser = '';
 
-        this.$$('#login-dialog').open();
+        this.$.loginDialog.open();
       },
 
       // Send the message to the server
@@ -468,7 +468,7 @@
 
       // Scroll to the most recent message
       scrollToLastMessage: function() {
-        this.$$('#message-list').scrollToIndex(this.newestMessageIdx);
+        this.$.messageList.scrollToIndex(this.newestMessageIdx);
       },
 
       // HTTP /login response handler
@@ -485,7 +485,7 @@
               this.password = '';
 
               this.loginErrorMessage = 'Whoops - try again!';
-              this.$$('#login-error').hidden = false;
+              this.$.loginError.hidden = false;
             }
 
           } else {
@@ -495,8 +495,8 @@
 
             this.registerSocketListeners();
 
-            this.$$('#login-error').hidden = true;
-            this.$$('#login-dialog').close();
+            this.$.loginError.hidden = true;
+            this.$.loginDialog.close();
           }
         }
 
@@ -513,7 +513,7 @@
             console.log(_this.loginResponse.errorMessage);
           } else {
             _this.loginId = _this.socket.id;
-            _this.$$('#login-dialog').close();
+            _this.$.loginDialog.close();
           }
         }
 

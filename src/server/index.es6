@@ -1,5 +1,6 @@
 // server/index.es6
 
+import fs from 'fs';
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import koaStatic from 'koa-static';

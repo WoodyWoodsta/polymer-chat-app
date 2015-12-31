@@ -121,7 +121,7 @@
 
     <!-- HTTP Interface -->
     <iron-ajax id="loginAjax"
-      url="http://0.0.0.0:3000/login"
+      url="/login"
       method="POST"
       content-type="application/json"
       handle-as="json"
@@ -129,7 +129,7 @@
       last-response="{{loginResponseBody}}"></iron-ajax>
 
     <iron-ajax id="reconnectAjax"
-      url="http://0.0.0.0:3000/reconnect"
+      url="/reconnect"
       method="POST"
       content-type="application/json"
       handle-as="json"

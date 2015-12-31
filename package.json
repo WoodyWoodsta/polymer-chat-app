@@ -1,9 +1,9 @@
 {
-  "name": "app-name",
-  "version": "0.1.0",
-  "description": "app-description",
+  "name": "chat=app",
+  "version": "0.3.0",
+  "description": "see bower.json",
   "main": "index.js",
-  "author": "author-name <author-email>",
+  "author": "see bower.json",
   "license": "MIT",
   "private": true,
   "dependencies": {

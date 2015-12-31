@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 <!-- paper-elements -->
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
@@ -35,6 +36,8 @@
         --element-light-transparent-color: var(rgba(255,255,255,.7));
         --element-paper-color: var(--ext-element-paper-color, #FAFAFA);
 
+        --error-color: rgb(187,40,40);
+
         @apply(--layout);
         @apply(--layout-flex-auto);
 
@@ -42,7 +45,7 @@
         font-family: 'Roboto', sans-serif;
       }
 
-      #element-paper {
+      #elementPaper {
         @apply(--layout-flex);
         @apply(--layout-horizontal);
         overflow: hidden;
@@ -50,7 +53,7 @@
         background-color: var(--element-paper-color);
       }
 
-      .messaging-wrapper {
+      #messagingWrapper {
         @apply(--layout-vertical);
         @apply(--layout-flex);
       }
@@ -59,7 +62,7 @@
         padding: 15px;
       }
 
-      #message-list {
+      #messageList {
         @apply(--layout-flex);
         color: var(--element-dark-color);
       }
@@ -68,7 +71,7 @@
         flex-grow: 0;
       }
 
-      .header-panel-title {
+      #headerPanelTitle {
         @apply(--layout-horizontal);
         padding: 10px;
         padding-left: 15px;
@@ -78,17 +81,17 @@
         font-weight: bold;
       }
 
-      #header-panel-secondary-title {
+      #headerPanelSecondaryTitle {
         font-size: 10pt;
         font-weight: 400;
         font-style: italic;
       }
 
-      #header-panel-secondary-title-wrapper {
+      #headerPanelSecondaryTitleWrapper {
         @apply(--layout-flex);
       }
 
-      #user-list {
+      #userList {
         width: 200px;
         border-bottom-right-radius: var(--element-border-radius);
         border-top-right-radius: var(--element-border-radius);
@@ -96,62 +99,116 @@
         color: var(--element-dark-color);
       }
 
-      #user-item {
+      #userItem {
         font-size: 10pt;
       }
 
-      @media (max-width: 560px) {
-        #user-list {
+      #loginDialogHeader > h1 {
+        font-family: monospace;
+        margin-bottom: 5px;
+      }
+
+      #loginError {
+        color: var(--error-color);
+      }
+
+      @media (max-width: 520px) {
+        #userList {
           display: none;
         }
       }
     </style>
 
-    <paper-dialog id="username-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-click>
-      <h2>Pick a username!</h2>
-      <paper-input id="username-input"
-        label="Username"
-        value="{{username}}"
-        error-message="Sorry, that username is taken!"
-        on-keydown="onUsernameKeyDown"></paper-input>
+    <!-- HTTP Interface -->
+    <iron-ajax id="loginAjax"
+      url="http://0.0.0.0:3000/login"
+      method="POST"
+      content-type="application/json"
+      handle-as="json"
+      on-response="loginResponse"
+      last-response="{{loginResponseBody}}"></iron-ajax>
+
+    <iron-ajax id="reconnectAjax"
+      url="http://0.0.0.0:3000/reconnect"
+      method="POST"
+      content-type="application/json"
+      handle-as="json"
+      on-response="reconnectResponse"
+      last-response="{{reconnectResponseBody}}"></iron-ajax>
+
+    <!-- Login Dialog -->
+    <paper-dialog id="loginDialog" on-keydown="onUsernameKeyDown" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
+      <div id="loginDialogHeader">
+        <h1>eChat</h1>
+        <div>v0.2.0</div>
+      </div>
+      <div>
+        <div id="loginError" hidden>[[loginErrorMessage]]</div>
+        <paper-input id="usernameInput"
+          class="login-input"
+          label="Username"
+          value="{{username}}"
+          error-message="Sorry, that username is taken!"></paper-input>
+        <paper-input id="passwordInput"
+          class="login-input"
+          type="password"
+          label="Password"
+          value="{{password}}"></paper-input>
+      </div>
       <div class="buttons">
-        <paper-button id="username-submit-button" on-click="connectSocket">Connect</paper-button>
+        <paper-button id="usernameSubmitButton" on-click="connectSocket">Login</paper-button>
       </div>
     </paper-dialog>
 
-    <paper-dialog id="error-dialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-click>
+    <!-- Error/Connection Dialog -->
+    <paper-dialog id="errorDialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
       <h2>{{errorMessage}}</h2>
     </paper-dialog>
 
-    <paper-material id="element-paper" elevation="1">
+    <!-- New User Confirmation Dialog -->
+    <paper-dialog id="confirmationDialog" with-backdrop no-cancel-on-outside-click no-cancel-on-esc-key>
+      <div class="header">
+        <h2>Are you sure you want to add a new user?</h2>
+      </div>
+      <div class="buttons">
+        <paper-button id="confirm" on-click="userConfirmation">Yes</paper-button>
+        <paper-button id="back" on-click="disconnectSocket">No</paper-button>
+      </div>
+    </paper-dialog>
 
-      <div class="messaging-wrapper">
+    <!-- App -->
+    <paper-material id="elementPaper" elevation="1">
+
+      <!-- Left hand side -->
+      <div id="messagingWrapper">
         <!-- Message List -->
-        <iron-list id="message-list" items="[[messageList]]" as="item">
+        <iron-list id="messageList" items="[[messageList]]" as="item">
           <template>
             <message-item data="[[item.data]]" message></message-item>
           </template>
         </iron-list>
 
+        <!-- Custom message input -->
         <message-input></message-input>
 
       </div>
 
       <!-- Online User List -->
-      <div id="user-list">
-        <div class="header-panel-title">
-          <div id="header-panel-secondary-title-wrapper">
+      <div id="userList">
+        <div id="headerPanelTitle">
+          <div id="headerPanelSecondaryTitleWrapper">
             <div>Online</div>
-            <div id="header-panel-secondary-title" hidden$="[[!currentUser]]">as {{currentUser}}</div>
+            <div id="headerPanelSecondaryTitle" hidden$="[[!currentUser]]">as {{currentUser}}</div>
           </div>
-          <paper-icon-button id="logout-button" icon="icons:power-settings-new" on-click="disconnectSocket"></paper-icon-button>
+          <paper-icon-button id="logoutButton" icon="icons:power-settings-new" on-click="disconnectSocket"></paper-icon-button>
         </div>
         <iron-list items="[[userList]]" as="item">
           <template>
-            <div id="user-item">[[item.data.user]]</div>
+            <div id="userItem">[[item.data.user]]</div>
           </template>
         </iron-list>
       </div>
+
     </paper-material>
 
   </template>
@@ -198,38 +255,47 @@
         },
         currentUser: {
           type: String,
-          value: ''
+          value: null
         },
         newestMessageIdx: Number,
+        loaded: Boolean,
         wasDisconnected: {
           type: Boolean,
           value: false
-        }
+        },
+        username: {
+          type: String,
+          value: null
+        },
+        password: {
+          type: String,
+          value: null
+        },
+        loginId: String,
+        errorMessage: {
+          type: String,
+        },
+        loginErrorMessage: String
       },
 
       listeners: {
         'submit-message': 'submitMessage'
       },
 
-      // When the username-submit-button is pressed, add the user
-      addUser: function() {
-        var _this = this;
-        _this.socket.emit('new user', _this.username, function(data) {
-          // If the username is valid...
-          if(data) {
-            _this.currentUser = _this.username;
-            _this.$['username-dialog'].close();
-          } else {
-            // Warn the user of the invalid username
-            _this.$['username-input'].invalid = true;
-          }
-        });
+      // element lifecycle
+      attached: function() {
+        this.onAttached();
+      },
+
+      onAttached: function() {
+        // Open the username dialog to retrieve username
+        this.$.loginDialog.open();
       },
 
       // When username is changed, ensure the username-input is not invalid
       onUsernameChange: function() {
-        if (this.$['username-input'].invalid) {
-          this.$['username-input'].invalid = false;
+        if (this.$.usernameInput.invalid) {
+          this.$.usernameInput.invalid = false;
         }
       },
 
@@ -240,58 +306,63 @@
         }
       },
 
-      // Send the message to the server
-      submitMessage: function(e) {
-        this.socket.emit('send message', e.detail.message, function(entry) {
-          // Append an error status to the message data if the send failed
-          entry.error = true;
-          _this.push('messageList', {
-            index: entry.ts,
-            data: entry
-          });
-        });
+      // When the username-submit-button is pressed, add the user
+      requestLogin: function(addNewUser) {
+        this.currentUser = this.username;
+        this.$.loginAjax.body = {
+          username: this.username,
+          password: this.password,
+          socketId: this.socket.id,
+          addNewUser: !!addNewUser
+        };
+        this.$.loginAjax.generateRequest();
       },
 
-      // Scroll to the most recent message
-      scrollToLastMessage: function() {
-        this.$['message-list'].scrollToIndex(this.newestMessageIdx);
-      },
-      // TODO: Fire an iron-list resize when element is ready
-
-      // element lifecycle
-      attached: function() {
-        this.onAttached();
-      },
-
-      onAttached: function() {
-        // Open the username dialog to retrieve username
-        this.$['username-dialog'].open();
+      // add new user on yes button press
+      userConfirmation: function() {
+        this.requestLogin(true);
+        this.$.confirmationDialog.close();
       },
 
       // Create a socket aided connection to the server, and setup callbacks
       connectSocket: function() {
         var _this = this;
-        var loaded = false;
+        _this.loaded = false;
 
-        // Open the socket connection, force a new connection if this is not the first time
-        if (!_this.wasDisconnected) {
-          _this.socket = io.connect();
-        } else {
-          _this.socket = io.connect({'forceNew': true});
+        // Only create socket when socket does not already exist
+        if (!_this.socket) {
+          // Open the socket connection, force a new connection if this is not the first time
+          if (!_this.wasDisconnected) {
+            _this.socket = io.connect();
+          } else {
+            _this.socket = io.connect({'forceNew': true});
+          }
+
+
+          _this.wasDisconnected = false;
+
         }
+        _this.async(_this.requestLogin, 200);
+      },
 
-        _this.wasDisconnected = false;
+      registerSocketListeners: function() {
+        var _this = this;
 
         // When connection is successful
         _this.socket.on('connect', function() {
           // Only resend the username to the server if we connected once before
-          if (loaded) {
-            _this.socket.emit('restore user', _this.currentUser);
+          if (_this.loaded) {
+            _this.$.reconnectAjax.body = {
+              username: _this.currentUser,
+              oldSocketId: _this.loginId,
+              newSocketId: _this.socket.id
+            };
+            _this.$.reconnectAjax.generateRequest();
           }
 
           // If in fact the connection has been restored, close the dialog
           if (_this.socket.connected) {
-            _this.$['error-dialog'].close();
+            _this.$.errorDialog.close();
           }
         });
 
@@ -313,9 +384,9 @@
         // Receive the message history
         _this.socket.on('load old msgs', function(data) {
           // check to see if the messages have already been loaded
-          if(!loaded) {
+          if(!_this.loaded) {
             // then load the old messages
-            loaded = true;
+            _this.loaded = true;
 
             // crank through incoming messages and formulate a list data object, reversed
             _this.messageList = data.map(function(entry) {
@@ -350,6 +421,7 @@
           });
 
           // Only scroll to the bottom if it is the user's message
+          // TODO: Scroll down if the last message has been viewed! (difficulty level: hmmmm)
           if (entry.isOwner) {
             _this.scrollToLastMessage();
           }
@@ -358,8 +430,7 @@
         // Place into the message list a notification of a new user
         _this.socket.on('user notification', function(data) {
           // Only do this if the message list has been loaded
-          if (loaded) {
-            data.isOwner = (data.nick === _this.currentUser);
+          if (_this.loaded && !(data.nick === _this.currentUser)) {
             data.userNotification = true;
 
             // Formulate the message that will display
@@ -380,26 +451,102 @@
         // Notify the user when the server disconnects
         _this.socket.on('disconnect', function() {
           if (!_this.wasDisconnected) {
-            _this.errorMessage = 'Server disconnected'; // TODO: Think of a better message here
-            _this.$['error-dialog'].open();
+            _this.errorMessage = 'Server is down!';
+            _this.$.errorDialog.open();
           }
         });
 
-        // Finally, add the user
-        _this.addUser();
+        // Request the startup data
+        _this.socket.emit('request data');
       },
 
       // Disconnect the user
       disconnectSocket: function() {
         // Disconnect the socket
+        if(this.$.confirmationDialog) {
+          this.$.confirmationDialog.close();
+          this.username = '';
+          this.password = '';
+        }
+
         this.wasDisconnected = true;
         this.socket.close();
         this.socket = null;
         this.loaded = false;
         this.currentUser = '';
 
-        this.$['username-dialog'].open();
+        this.$.loginDialog.open();
+      },
+
+      // Send the message to the server
+      submitMessage: function(e) {
+        this.socket.emit('send message', e.detail.message, function(entry) {
+          // Append an error status to the message data if the send failed
+          entry.error = true;
+          _this.push('messageList', {
+            index: entry.ts,
+            data: entry
+          });
+        });
+      },
+
+      // Scroll to the most recent message
+      scrollToLastMessage: function() {
+        this.$.messageList.scrollToIndex(this.newestMessageIdx);
+      },
+
+      // HTTP /login response handler
+      loginResponse: function (e) {
+        // var _this = this;
+        console.log('[chat-bar] - Response received');
+
+        // Check for reponse, and for any errors
+        if (e.type === 'response') {
+          if (this.loginResponseBody.error) {
+            console.log(this.loginResponseBody.errorMessage);
+            if (this.loginResponseBody.errorCode === -2) {
+              this.username = '';
+              this.password = '';
+
+              this.loginErrorMessage = 'Whoops - try again!';
+              this.$.loginError.hidden = false;
+            }
+            else if(this.loginResponseBody.errorCode === -3) {
+              this.$.confirmationDialog.open();
+              this.$.loginError.hidden = true;
+            }
+
+          } else {
+            this.loginId = this.socket.id;
+            this.username = '';
+            this.password = '';
+
+            this.registerSocketListeners();
+
+            this.$.loginError.hidden = true;
+            this.$.loginDialog.close();
+          }
+        }
+
+      },
+
+      // HTTP reconnect response handler
+      reconnectResponse: function (e) {
+        var _this = this;
+        console.log('[chat-bar] - Response received');
+
+        // Check for reponse, and for any errors
+        if (e.type === 'response') {
+          if (_this.loginResponseBody.error) {
+            console.log(_this.loginResponse.errorMessage);
+          } else {
+            _this.loginId = _this.socket.id;
+            _this.$.loginDialog.close();
+          }
+        }
+
       }
+
     });
 
   </script>

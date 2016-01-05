@@ -71,11 +71,19 @@
   </head>
 
   <body unresolved>
+
+    <!-- Service Worker -->
+    <platinum-sw-register auto-register default-cache-strategy="cacheFirst">
+      <platinum-sw-cache></platinum-sw-cache>
+    </platinum-sw-register>
+
+    <!-- App -->
     <div id="app-wrapper">
       <div id="app">
         <chat-bar></chat-bar>
       </div>
     </div>
+
   </body>
 
 </html>

@@ -20,6 +20,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1",
     "iron-elements": "PolymerElements/iron-elements#^1",
-    "paper-elements": "PolymerElements/paper-elements#^1"
+    "paper-elements": "PolymerElements/paper-elements#^1",
+    "platinum-elements": "PolymerElements/platinum-elements#^1"
   }
 }

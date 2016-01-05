@@ -14,7 +14,10 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
+<!-- Platinum Elements -->
+<link rel="import" href="../../bower_components/platinum-sw/platinum-sw-elements.html">
 
 <!-- custom-elements -->
 <link rel="import" href="../message-item/message-item.html">
@@ -112,12 +115,32 @@
         color: var(--error-color);
       }
 
+      paper-button {
+        color: rgb(137,152,230);
+      }
+
       @media (max-width: 520px) {
         #userList {
           display: none;
         }
       }
     </style>
+
+    <!-- Service Worker -->
+    <platinum-sw-register
+      href="../../sw-import.js"
+      auto-register
+      skip-waiting
+      clients-claim
+      on-service-worker-updated="handleSWUpdated">
+      <platinum-sw-cache default-cache-strategy="cacheFirst"></platinum-sw-cache>
+    </platinum-sw-register>
+
+    <!-- New updates toast -->
+    <paper-toast id="updatesToast" text="New updates available! Refresh to load updates" duration="10000">
+      <!-- <paper-button>refresh</paper-button> -->
+      <span role="button" tabindex="0" style="color: #6b97f9; margin-left: 20px" on-tap="refreshPage">REFRESH</span>
+    </paper-toast>
 
     <!-- HTTP Interface -->
     <iron-ajax id="loginAjax"
@@ -545,6 +568,16 @@
           }
         }
 
+      },
+
+      // Prompt user to reload page when new update is available (sw)
+      handleSWUpdated: function () {
+        console.log('New update is available');
+        this.$.updatesToast.open();
+      },
+
+      refreshPage: function () {
+        window.location.reload();
       }
 
     });
